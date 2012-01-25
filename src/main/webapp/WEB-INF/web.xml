@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="person" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd
+">
+
+	<display-name>Tile Cache Server</display-name>
+	
+	<servlet>
+		<servlet-name>GoogleTileCache</servlet-name>
+		<servlet-class>info.joseluismartin.gtc.TileCacheServlet</servlet-class>
+	    <init-param>
+		     <description>root path for disk cache</description>
+		     <param-name>cachePath</param-name>
+		     <param-value>/opt/tile_cache</param-value>
+		</init-param>
+		<init-param>
+		     <description>Use proxy for HTTP</description>
+		     <param-name>useProxy</param-name>
+		     <param-value>false</param-value>
+		</init-param>
+		<init-param>
+		     <description>Proxy host name</description>
+		     <param-name>proxyHost</param-name>
+		     <param-value>localhost</param-value>
+		</init-param>
+		<init-param>
+		     <description>Proxy port</description>
+		     <param-name>proxyPort</param-name>
+		     <param-value>5000</param-value>
+		</init-param>
+		<init-param>
+		     <description>Proxy username</description>
+		     <param-name>proxyUser</param-name>
+		     <param-value>user</param-value>
+		</init-param>
+		<init-param>
+		     <description>Proxy password</description>
+		     <param-name>proxyPassword</param-name>
+		     <param-value>password</param-value>
+		</init-param>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>GoogleTileCache</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+		
+</web-app>
