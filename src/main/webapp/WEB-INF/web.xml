@@ -4,15 +4,20 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd
 ">
 
-	<display-name>Tile Cache Server</display-name>
+	<display-name>Tila Cache Server</display-name>
 	
 	<servlet>
-		<servlet-name>GoogleTileCache</servlet-name>
+		<servlet-name>TileCacheServlet</servlet-name>
 		<servlet-class>info.joseluismartin.gtc.TileCacheServlet</servlet-class>
 	    <init-param>
 		     <description>root path for disk cache</description>
 		     <param-name>cachePath</param-name>
 		     <param-value>/opt/tile_cache</param-value>
+		</init-param>
+		 <init-param>
+		     <description>WMTS URL</description>
+		     <param-name>tileServer</param-name>
+		     <param-value>http://tile.openstreetmap.org</param-value>
 		</init-param>
 		<init-param>
 		     <description>Use proxy for HTTP</description>
