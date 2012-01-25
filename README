@@ -1,0 +1,12 @@
+TILA - WMS and Google Maps Tile Cache Server
+--------------------------------------------
+Compile with:  mvn package 
+
+Deploy on your favorite application server. 
+Configuration setting are (for now) in web.xml
+
+
+--------------------------------------------
+Jose Luis Martin.
+
+
