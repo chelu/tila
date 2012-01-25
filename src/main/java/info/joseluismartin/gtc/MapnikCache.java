@@ -26,7 +26,7 @@ import java.net.URL;
  */
 public class MapnikCache extends AbstractTileCache {
 	
-	private static String TILE_SERVER = "http://tile.openstreetmap.org";
+	private String tileServer = "http://tile.openstreetmap.org";
 
 	/**
 	 * {@inheritDoc}
@@ -47,7 +47,7 @@ public class MapnikCache extends AbstractTileCache {
 	 * {@inheritDoc}
 	 */
 	public URL getTileUrl(Tile tile) {
-		String url = TILE_SERVER + "/" + tile.getZoom() + "/" + tile.getX() +"/" + tile.getY() + ".png";
+		String url = tileServer + "/" + tile.getZoom() + "/" + tile.getX() +"/" + tile.getY() + ".png";
 		try {
 			return new URL (url);
 		} catch (MalformedURLException e) {
@@ -64,6 +64,20 @@ public class MapnikCache extends AbstractTileCache {
 		int zoom = tile.getZoom();
 
 		return getCachePath() + File.separator + zoom + File.separator + x + File.separator + y + ".png";
+	}
+
+	/**
+	 * @return the tileServer
+	 */
+	public String getTileServer() {
+		return tileServer;
+	}
+
+	/**
+	 * @param tileServer the tileServer to set
+	 */
+	public void setTileServer(String tileServer) {
+		this.tileServer = tileServer;
 	}
 
 

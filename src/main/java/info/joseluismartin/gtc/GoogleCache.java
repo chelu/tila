@@ -23,6 +23,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
+/**
+ * TileCache implementation for Google Maps. 
+ * 
+ * The file system cache is compatible with gmapcacher.
+ * 
+ * @author Jose Luis Martin - (jlm@joseluismartin.info)
+ */
 public class GoogleCache extends AbstractTileCache {
 
 	private static final Log log = LogFactory.getLog(GoogleCache.class);

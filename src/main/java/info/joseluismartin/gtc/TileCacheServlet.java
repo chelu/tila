@@ -36,14 +36,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Google maps tile server cache.
+ * Google Maps Tile Server Cache.
  * 
  * @author Jose Luis Martin
  */
 public class TileCacheServlet extends HttpServlet {
 	
+	private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2";
+	
 	static {
-		System.setProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+		System.setProperty("User-Agent", USER_AGENT);
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -60,7 +62,7 @@ public class TileCacheServlet extends HttpServlet {
 	
 	// FIXME: move to DI
 	private static AbstractTileCache google = new GoogleCache();
-	private static AbstractTileCache mapnik = new MapnikCache();
+	private static MapnikCache mapnik = new MapnikCache();
 
 
 	/**
@@ -111,7 +113,7 @@ public class TileCacheServlet extends HttpServlet {
 	throws MalformedURLException, IOException {
 		
 		URLConnection conn = url.openConnection(proxy);
-		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+		conn.setRequestProperty("User-Agent", USER_AGENT);
 		BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		int b;
@@ -130,6 +132,11 @@ public class TileCacheServlet extends HttpServlet {
 		cachePath = getInitParameter("cachePath");
 		google.setCachePath(cachePath + "/google");
 		mapnik.setCachePath(cachePath + "/mapnik/tiles");
+		
+		String tileServer = getInitParameter("tileServer");
+		if (tileServer != null) {
+			mapnik.setTileServer(tileServer);
+		}
 		
 		useProxy = "true".equalsIgnoreCase(getInitParameter("useProxy"));
 
