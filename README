@@ -1,12 +1,33 @@
-TILA - WMS and Google Maps Tile Cache Server
---------------------------------------------
-Compile with:  mvn package 
+TILA - WMST and Google Maps Tile Cache Server
+--------------------------------------------------------------------------------
+Jose Luis Martin - Jun 2012
 
-Deploy on your favorite application server. 
-Configuration setting are (for now) in web.xml
+Tila (TILes on LAn) is a tile cache server for OpenGis WMTS and Google Maps. 
+Tila will solve performance problems in applications using a map tile server 
+by storing tiles on your LAN.
+
+Download de latest war file from the download area and deploy it on your 
+application server. Edit the web.xml file and set the configuration parameters. 
+
+The Google Map Cache is always active and don't need configuration.
+For now, Tila only can have two caches active, one for a WMTS and other for 
+Google Maps. If you want to cache another WMTS server run another instace in
+your application server.
 
 
---------------------------------------------
-Jose Luis Martin.
+Configure the following parameters editing the web application configuration file web.xml
+
+- cachePath: Path to cache folder.
+- tileServer: WMST server URL.
+- useProxy: True if using a proxy server.
+- proxyHost: Name or IP of proxy server.
+- proxyPort: Port on proxy server.
+- proxyUser: User on proxy server.
+- proxyPassword: Password on proxy server.
+
+Tila is open source licensed under Apache Software Foundation 2.0 License.
+
+--------------------------------------------------------------------------------
+
 
 
