@@ -9,8 +9,17 @@
 	<description>Tile Cache Server for WMS and Google Maps</description>
 	<organization>
 		<name>Jose Luis Martín</name>
-		<url>www.joseluismartin.info/gtc</url>
+		<url>www.joseluismartin.info/tila</url>
 	</organization>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<vaadin.version>6.6.0</vaadin.version>
+		<jdal.version>1.1.4</jdal.version>
+		<gwt.version>2.3.0</gwt.version>
+		<gwt.plugin.version>2.2.0</gwt.plugin.version>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -21,6 +30,54 @@
 					<source>1.5</source>
 					<target>1.5</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<version>${gwt.plugin.version}</version>
+				<configuration>
+					<webappDirectory>${project.build.directory}/${project.build.finalName}/VAADIN/widgetsets</webappDirectory>
+					<extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
+					<runTarget>jdal-vaadin-sample</runTarget>
+					<hostedWebapp>${project.build.directory}/${project.build.finalName}</hostedWebapp>
+					<noServer>true</noServer>
+					<port>8080</port>
+					<compileReport>false</compileReport>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>resources</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.google.gwt</groupId>
+						<artifactId>gwt-dev</artifactId>
+						<version>${gwt.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>com.google.gwt</groupId>
+						<artifactId>gwt-user</artifactId>
+						<version>${gwt.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-maven-plugin</artifactId>
+				<version>1.0.2</version>
+				<executions>
+					<execution>
+						<configuration>
+						</configuration>
+						<goals>
+							<goal>update-widgetset</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -37,8 +94,8 @@
 			<url>http://joseluismartin.info:8081/artifactory/repo</url>
 		</repository>
 		<repository>
-			<id>jlm-snapshots</id>
-			<url>http://joseluismartin.info/libs-snapshots-local</url>
+			<id>jdal</id>
+			<url>http://www.jdal.org/repo</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -74,7 +131,24 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.0.3</version>
 		</dependency>
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin</artifactId>
+			<version>6.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jdal</groupId>
+			<artifactId>jdal-vaadin</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.freedesktop.tango</groupId>
+			<artifactId>tango-icon-theme</artifactId>
+			<version>0.8.90</version>
+		</dependency>
+
 	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 		</dependencies>

@@ -64,7 +64,7 @@ public class Tile {
 	}
 	
 	/**
-	 * @return
+	 * @return key from tile data
 	 */
 	public long getKey() {
 		long key = x*10000000 + y*100 + zoom;

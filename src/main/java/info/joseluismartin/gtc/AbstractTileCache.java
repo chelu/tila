@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
 @SuppressWarnings("unchecked")
 public abstract class AbstractTileCache implements TileCache {
 	
-	private Map tileMap = Collections.synchronizedMap(new LRUMap(10000));
+	private Map<Long, Tile> tileMap = Collections.synchronizedMap(new LRUMap(10000));
 	private static final Log log = LogFactory.getLog(AbstractTileCache.class);
 	private String cachePath;
 	

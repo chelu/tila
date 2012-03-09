@@ -34,6 +34,7 @@ public class GoogleCache extends AbstractTileCache {
 
 	private static final Log log = LogFactory.getLog(GoogleCache.class);
 	private int serverIndex = 0;
+	private enum GoogleMapType { MAP , SATELITE(), MIXTED };
 
 
 	/**
@@ -95,6 +96,6 @@ public class GoogleCache extends AbstractTileCache {
 	    int zoom = tile.getZoom();
 	    
 	    return getCachePath() + File.separator + zoom + File.separator + x / 1024 + File.separator + x % 1024 + File.separator + y / 1024 + File.separator + y % 1024 + ".png";
-	 } 
-} 
-
+	 }
+}
+	 

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	default-init-method="init"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+
+	<context:annotation-config/>
+	
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- DataSource -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+
+		<property name="acquireIncrement" value="3" />
+		<property name="minPoolSize" value="2" />
+		<property name="maxPoolSize" value="15" />
+		<property name="maxIdleTime" value="5" />
+		<property name="numHelperThreads" value="5" />
+
+		<property name="idleConnectionTestPeriod" value="10" />
+		<property name="autoCommitOnClose" value="false" />
+		<property name="preferredTestQuery" value="select 1;" />
+		<property name="testConnectionOnCheckin" value="true" />
+
+		<property name="checkoutTimeout" value="60000" />
+	</bean>
+	
+     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+      <property name="dataSource" ref="dataSource"/>
+
+	  <property name="jpaDialect">
+        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+     </property>
+     <property name="jpaVendorAdapter">
+       <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+         <property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect"/>
+       </bean>
+     </property>
+    </bean>
+
+
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+      <property name="entityManagerFactory" ref="entityManagerFactory"/>
+      <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+  <!-- bean post-processor for JPA annotations -->
+  <bean class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor"/>
+
+   <!-- Simple Dao -->
+   <bean id="simpleDao" class="info.joseluismartin.dao.jpa.JpaDao" />
+   
+   <!-- Persistent Services -->
+   <bean id="persistentServiceFactory" class="info.joseluismartin.service.PersistentServiceFactory" />
+
+	<!-- Simple PersistentService -->
+	<bean id="persistentService" class="info.joseluismartin.logic.PersistentManager">
+		<property name="dao" ref="simpleDao" />
+	</bean>   
+	
+   	
+   <!-- UI Widgets -->
+   
+   <bean id="guiFactory" class="info.joseluismartin.vaadin.ui.ApplicationContextGuiFactory" />
+   
+   <bean id="comboBoxFieldBuilder" class="info.joseluismartin.vaadin.ui.form.ComboBoxFieldBuilder">
+  		<property name="persistentServiceFactory" ref="persistentServiceFactory"/>
+   </bean>
+   
+   <!-- Create and configure Fields by means of JPA annotations -->
+   <bean id="formFieldFactory" class="info.joseluismartin.vaadin.ui.form.AnnotationFieldFactory" >
+   		<property name="classBuilderMap">
+					<map>
+				    	<entry key="org.jdal.samples.model.Category" value-ref="comboBoxFieldBuilder" />
+				    	<entry key="org.jdal.samples.model.Author" value-ref="comboBoxFieldBuilder" />
+				    </map>
+		</property>
+		<property name="fieldProcessors">
+			<list>
+			<!-- size category combo to 150px width, is to large by default -->
+				<bean class="info.joseluismartin.vaadin.ui.form.SizeFieldProcessor">
+					<property name="widths">
+						<map>
+							<entry key="category" value="150px"/>
+						</map>
+					</property>
+				</bean>
+			</list>
+		</property>
+   </bean>
+   
+	
+	<!--  Action List for table buttons -->
+	<util:list id="actionList" scope="prototype">
+		<bean class="info.joseluismartin.vaadin.ui.table.AddAction"  p:icon="images/table/filenew.png"
+			p:description="Add new item" />
+		<bean class="info.joseluismartin.vaadin.ui.table.RemoveAction" p:icon="images/table/edit-delete.png"
+			p:description="Delete selected items" />
+		<bean class="info.joseluismartin.vaadin.ui.table.FindAction" p:icon="images/table/edit-find.png"
+			p:description="Apply filter" />
+		<bean class="info.joseluismartin.vaadin.ui.table.RefreshAction" p:icon="images/table/reload.png"
+			p:description="Refresh current page" />
+		
+	</util:list>
+	
+	
+	<bean id="table" class="info.joseluismartin.vaadin.ui.table.ConfigurableTable"
+		scope="prototype">
+		
+		<property name="selectable" value="true" />
+		<property name="multiSelect" value="true" />
+
+		<property name="columns">
+			<list value-type="info.joseluismartin.vaadin.ui.table.Column">
+			</list>
+		</property>
+	</bean>
+
+	<bean id="paginator" class="info.joseluismartin.vaadin.ui.table.VaadinPaginator"
+		scope="prototype">
+		<property name="first" ref="paginatorFirstButton" />
+		<property name="last" ref="paginatorLastButton" />
+		<property name="next" ref="paginatorNextButton" />
+		<property name="previous" ref="paginatorPreviousButton" />
+		<property name="pageSizes" value="10,20,30,40,50,100,200,All" />
+	</bean>
+
+	<bean id="paginatorFirstButton" class="com.vaadin.ui.Button" scope="prototype">
+		<property name="icon" value="images/table/go-first.png" />
+	</bean>
+
+	<bean id="paginatorLastButton" class="com.vaadin.ui.Button" scope="prototype">
+		<property name="icon" value="images/table/go-last.png" />
+	</bean>
+
+	<bean id="paginatorNextButton" class="com.vaadin.ui.Button" scope="prototype">
+		<property name="icon" value="images/table/go-next.png" />
+	</bean>
+
+	<bean id="paginatorPreviousButton" class="com.vaadin.ui.Button" scope="prototype">
+		<property name="icon" value="images/table/go-previous.png" />
+	</bean>
+
+	<bean id="buttonPanel" class="com.vaadin.ui.HorizontalLayout"
+		scope="prototype" />
+
+
+	<!-- Property Editors -->
+	<bean id="customEditorConfigurer"
+		class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+		<property name="customEditors">
+			<map>
+				<entry key="com.vaadin.terminal.Resource">
+					<bean class="info.joseluismartin.vaadin.beans.VaadinResourcePropertyEditor" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- Message Source -->
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames" value="i18n/jdal,i18n/tila" />
+	</bean>
+	
+
+	<!-- Tx Advice -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <!-- the transactional semantics... -->
+    <tx:attributes>
+      <!-- all methods starting with 'get' and 'load' are read-only -->
+      <tx:method name="get*" read-only="true"/>
+      <tx:method name="load*" read-only="true"/>
+      <!-- other methods use the default transaction settings -->
+      <tx:method name="*"/>
+    </tx:attributes>
+  </tx:advice>
+	
+   <aop:config>
+    <!-- Make all methods on package service transactional  -->
+     <aop:pointcut id="serviceOperation" 
+     	expression="execution(* info.joseluismartin.service.PersistentService.*(..))"/>
+     <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation"/>
+  </aop:config>
+
+</beans>
+
