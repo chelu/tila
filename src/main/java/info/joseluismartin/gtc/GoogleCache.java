@@ -39,9 +39,6 @@ public class GoogleCache extends AbstractTileCache {
 
 	private static final Log log = LogFactory.getLog(GoogleCache.class);
 	private int serverIndex = 0;
-	@SuppressWarnings("unused")
-	private enum GoogleMapType { MAP , SATELITE(), MIXTED };
-
 
 	/**
 	 * Parse request and create a new tile with x, y, and zoom level
@@ -79,11 +76,13 @@ public class GoogleCache extends AbstractTileCache {
 		int x = tile.getX();
 		int y = tile.getY();
 		int zoom = tile.getZoom();
-
+		String type = tile.getType();
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append(getServerUrl());
-		sb.append("/vt/");
-		sb.append("x=");
+		sb.append("/");
+		sb.append(type);
+		sb.append("/x=");
 		sb.append(x);
 		sb.append("&y=");
 		sb.append(y);
