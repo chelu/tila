@@ -15,8 +15,15 @@
  */
 package info.joseluismartin.gtc.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 
@@ -26,11 +33,116 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="caches")
-public class CacheConfig {
+public class CacheConfig implements Serializable {
 	
+	@SequenceGenerator(name="CACHE_SEQ", sequenceName="caches_id_seq")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CACHE_SEQ")
 	@Id
 	private Long id;
-	private String name;
-	private String path;
-	private String remoteUrl;
+	private String name ="";
+	private String path = "";
+	private String url = "";
+	private Integer size = 10000;
+	private boolean active = Boolean.TRUE;
+	@ManyToOne
+	@JoinColumn(name="type")
+	private CacheType type;
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+	
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
+	 * @return the path
+	 */
+	public String getPath() {
+		return path;
+	}
+	
+	/**
+	 * @param path the path to set
+	 */
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
+	/**
+	 * @return the remote url
+	 */
+	public String getUrl() {
+		return url;
+	}
+	
+	/**
+	 * @param url the remoteUrl to set
+	 */
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	/**
+	 * @return the active
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * @param active the active to set
+	 */
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	/**
+	 * @return the size
+	 */
+	public Integer getSize() {
+		return size;
+	}
+
+	/**
+	 * @param size the size to set
+	 */
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public CacheType getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(CacheType type) {
+		this.type = type;
+	}
 }

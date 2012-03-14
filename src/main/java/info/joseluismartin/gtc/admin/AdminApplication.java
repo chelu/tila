@@ -15,13 +15,16 @@
  */
 package info.joseluismartin.gtc.admin;
 
-import info.joseluismartin.vaadin.ui.Box;
+import info.joseluismartin.gtc.model.CacheConfig;
+import info.joseluismartin.vaadin.ui.table.PageableTable;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.vaadin.Application;
-import com.vaadin.terminal.ClassResource;
-import com.vaadin.ui.Embedded;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.Window;
 
 
@@ -31,28 +34,31 @@ import com.vaadin.ui.Window;
  * @author Jose Luis Martin - (jlm@joseluismartin.info)
  */
 public class AdminApplication  extends Application {
-
+	
+	private ApplicationContext ctx; 
+	private TilaGuiFactory guiFactory;
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void init() {
+		ctx = WebApplicationContextUtils.getWebApplicationContext(((WebApplicationContext) getContext())
+				.getHttpSession().getServletContext());
+		guiFactory = (TilaGuiFactory) ctx.getBean("guiFactory");
+		
+		setTheme("tila");
 		Window mainWindow = new Window("Tila Administration");
-		VerticalLayout layout = new VerticalLayout();
-        layout.addComponent(createLogo());
-		mainWindow.setContent(layout);
+		CustomLayout cl = new CustomLayout("main");
+		Component main = guiFactory.getComponent("main");
+		cl.addComponent(main, "main");
+		cl.setSizeFull();
+		mainWindow.setContent(cl);
 		setMainWindow(mainWindow);
-	}
-	
-	private HorizontalLayout createLogo() {
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.setSizeFull();
-		Embedded logo = new Embedded("", new ClassResource("/images/tila.png",this));
-		hl.addComponent(logo);
-		Box.addHorizontalGlue(hl);
-		Embedded jlm = new Embedded("", new ClassResource("/images/jlm-logo.png", this));
-		hl.addComponent(jlm);
-		return hl;
+		
+		configureCacheTable();
 	}
 
+	private void configureCacheTable() {
+	}
 }

@@ -28,14 +28,12 @@
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
 		<property name="driverClass" value="${jdbc.driverClassName}" />
 		<property name="jdbcUrl" value="${jdbc.url}" />
-		<property name="user" value="${jdbc.username}" />
-		<property name="password" value="${jdbc.password}" />
 
 		<property name="acquireIncrement" value="3" />
-		<property name="minPoolSize" value="2" />
-		<property name="maxPoolSize" value="15" />
+		<property name="minPoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
 		<property name="maxIdleTime" value="5" />
-		<property name="numHelperThreads" value="5" />
+		<property name="numHelperThreads" value="1" />
 
 		<property name="idleConnectionTestPeriod" value="10" />
 		<property name="autoCommitOnClose" value="false" />
@@ -53,7 +51,7 @@
      </property>
      <property name="jpaVendorAdapter">
        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-         <property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect"/>
+         <property name="databasePlatform" value="org.hibernate.dialect.DerbyDialect"/>
        </bean>
      </property>
     </bean>
@@ -70,6 +68,12 @@
    <!-- Simple Dao -->
    <bean id="simpleDao" class="info.joseluismartin.dao.jpa.JpaDao" />
    
+   <bean id="proxyDao" class="info.joseluismartin.dao.jpa.JpaDao" >
+   		<constructor-arg value="info.joseluismartin.gtc.model.ProxyConfig" />
+   </bean>
+  
+   <bean id="daoFactory" class="info.joseluismartin.dao.jpa.JpaDaoFactory" />
+    
    <!-- Persistent Services -->
    <bean id="persistentServiceFactory" class="info.joseluismartin.service.PersistentServiceFactory" />
 
@@ -78,10 +82,20 @@
 		<property name="dao" ref="simpleDao" />
 	</bean>   
 	
+	<bean id="cacheService" class="info.joseluismartin.logic.PersistentManager">
+		<property name="dao" ref="cacheDao" />
+	</bean>
+	
+	<bean id="proxyService" class="info.joseluismartin.logic.PersistentManager">
+		<property name="dao" ref="proxyDao" />
+	</bean>
+	<bean id="cacheDao" class="info.joseluismartin.dao.jpa.JpaDao">
+		<constructor-arg value="info.joseluismartin.gtc.model.CacheConfig" />
+	</bean>
    	
    <!-- UI Widgets -->
    
-   <bean id="guiFactory" class="info.joseluismartin.vaadin.ui.ApplicationContextGuiFactory" />
+   <bean id="guiFactory" class="info.joseluismartin.gtc.admin.TilaGuiFactory" />
    
    <bean id="comboBoxFieldBuilder" class="info.joseluismartin.vaadin.ui.form.ComboBoxFieldBuilder">
   		<property name="persistentServiceFactory" ref="persistentServiceFactory"/>
@@ -89,19 +103,13 @@
    
    <!-- Create and configure Fields by means of JPA annotations -->
    <bean id="formFieldFactory" class="info.joseluismartin.vaadin.ui.form.AnnotationFieldFactory" >
-   		<property name="classBuilderMap">
-					<map>
-				    	<entry key="org.jdal.samples.model.Category" value-ref="comboBoxFieldBuilder" />
-				    	<entry key="org.jdal.samples.model.Author" value-ref="comboBoxFieldBuilder" />
-				    </map>
-		</property>
 		<property name="fieldProcessors">
 			<list>
-			<!-- size category combo to 150px width, is to large by default -->
+			<!-- size type combo to 150px width, is to large by default -->
 				<bean class="info.joseluismartin.vaadin.ui.form.SizeFieldProcessor">
 					<property name="widths">
 						<map>
-							<entry key="category" value="150px"/>
+							<entry key="type" value="150px"/>
 						</map>
 					</property>
 				</bean>
@@ -116,26 +124,116 @@
 			p:description="Add new item" />
 		<bean class="info.joseluismartin.vaadin.ui.table.RemoveAction" p:icon="images/table/edit-delete.png"
 			p:description="Delete selected items" />
-		<bean class="info.joseluismartin.vaadin.ui.table.FindAction" p:icon="images/table/edit-find.png"
-			p:description="Apply filter" />
 		<bean class="info.joseluismartin.vaadin.ui.table.RefreshAction" p:icon="images/table/reload.png"
 			p:description="Refresh current page" />
 		
 	</util:list>
 	
 	
-	<bean id="table" class="info.joseluismartin.vaadin.ui.table.ConfigurableTable"
-		scope="prototype">
-		
+	<bean id="cacheTable" class="info.joseluismartin.vaadin.ui.table.ConfigurableTable"
+		scope="prototype">		
 		<property name="selectable" value="true" />
-		<property name="multiSelect" value="true" />
-
+		<property name="multiSelect" value="false" />
+		
 		<property name="columns">
 			<list value-type="info.joseluismartin.vaadin.ui.table.Column">
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="id" />
+					<property name="displayName" value="ID" />
+					<property name="align" value="c" />
+					<property name="sortable" value="true" />
+				</bean>
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="name" />
+					<property name="displayName" value="Name" />
+					<property name="align" value="b" />
+					<property name="sortable" value="true" />
+					<property name="width" value="150" />
+				</bean>
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="path" />
+					<property name="displayName" value="Path" />
+					<property name="align" value="b" />
+					<property name="sortable" value="true" />
+					<property name="width" value="150" />
+				</bean>
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="url" />
+					<property name="displayName" value="Url" />
+					<property name="align" value="b" />
+					<property name="sortable" value="true" />
+					<property name="width" value="200" />
+				</bean>
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="type" />
+					<property name="displayName" value="Type" />
+					<property name="align" value="b" />
+					<property name="sortable" value="true" />
+					<property name="sortPropertyName" value="name" />
+					<property name="width" value="150" />
+				</bean>
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="active" />
+					<property name="displayName" value="Active" />
+					<property name="align" value="b" />
+					<property name="sortable" value="true" />
+				</bean>
 			</list>
 		</property>
 	</bean>
+	
+	<bean id="pageableTable" class="info.joseluismartin.vaadin.ui.table.PageableTable">
+		<property name="service" ref="cacheService" />
+		<property name="table" ref="cacheTable" />
+		<property name="paginator" ref="paginator" />
+		<property name="actions" ref="actionList" />
+		<property name="entityClass" value="info.joseluismartin.gtc.model.CacheConfig" />
+		<property name="formFieldFactory" ref="formFieldFactory" />
+		<property name="editor" value="cacheEditor" />
+	</bean>
+	
+	<!-- Cache Form Editor -->
+	<bean id="cacheEditor" class="com.vaadin.ui.Form" scope="prototype">
+		<property name="visibleItemProperties" value="#{ { 'directConnection', 'name', 'type', 'path','url','active', 'size' } }" />
+		<property name="formFieldFactory">
+			<bean class="info.joseluismartin.vaadin.ui.form.AnnotationFieldFactory">
+				<property name="fieldProcessors">
+					<list>
+						<bean class="info.joseluismartin.vaadin.ui.form.SizeFieldProcessor">
+							<property name="defaultWidth" value="400px" />
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
 
+	<bean id="proxyEditor" class="info.joseluismartin.gtc.admin.ProxyForm">
+		<property name="proxyService" ref="proxyService" />
+		<property name="fieldFactory" ref="defaultFieldFactory" />
+	</bean>
+
+	<bean id="defaultFieldFactory"
+		class="info.joseluismartin.vaadin.ui.form.ConfigurableFieldFactory">
+		<property name="idClassMap">
+			<map>
+				<entry key="password" value="com.vaadin.ui.PasswordField" />
+			</map>
+		</property>
+		<property name="fieldProcessors">
+			<list>
+				<bean class="info.joseluismartin.vaadin.ui.form.SizeFieldProcessor">
+					<property name="defaultWidth" value="400px" />
+					<property name="widths">
+						<map>
+							<entry key="type" value="150px" />
+						</map>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
 	<bean id="paginator" class="info.joseluismartin.vaadin.ui.table.VaadinPaginator"
 		scope="prototype">
 		<property name="first" ref="paginatorFirstButton" />
@@ -163,7 +261,32 @@
 
 	<bean id="buttonPanel" class="com.vaadin.ui.HorizontalLayout"
 		scope="prototype" />
-
+		
+	<bean id="main" class="info.joseluismartin.vaadin.ui.ListPane" scope="prototype" >
+		<property name="components">
+			<list>
+				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder" 
+					p:icon="images/table/table.png" 
+					p:name="Caches" 
+					p:component-ref="pageableTable" />
+					
+				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
+					p:icon="images/proxy.png"
+					p:name="Proxy Configuration"
+					p:component-ref="proxyEditor" />
+			</list>
+			
+		</property>
+	</bean>
+	
+	<bean id="cacheManager" class="info.joseluismartin.gtc.CacheManager">
+	</bean>	
+	
+	<bean id="googleMapsCache" class="info.joseluismartin.gtc.GoogleCache">
+	
+	</bean>
+	
+	<bean id="mapnikCache" class="info.joseluismartin.gtc.MapnikCache" />
 
 	<!-- Property Editors -->
 	<bean id="customEditorConfigurer"
@@ -181,6 +304,10 @@
 	<bean id="messageSource"
 		class="org.springframework.context.support.ResourceBundleMessageSource">
 		<property name="basenames" value="i18n/jdal,i18n/tila" />
+	</bean>
+	
+	<bean id="derbyShutdown" class="info.joseluismartin.gtc.EmbeddedDerbyShutdown">
+		<property name="databaseUrl" value="${jdbc.url}" />
 	</bean>
 	
 
