@@ -15,6 +15,8 @@
  */
 package info.joseluismartin.gtc;
 
+import info.joseluismartin.gtc.model.CacheConfig;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -33,13 +35,18 @@ import org.apache.commons.logging.LogFactory;
 @SuppressWarnings("unchecked")
 public abstract class AbstractTileCache implements TileCache {
 	
-	private Map<Long, Tile> tileMap = Collections.synchronizedMap(new LRUMap(10000));
+	private Map<Integer, Tile> tileMap = Collections.synchronizedMap(new LRUMap(10000));
 	private static final Log log = LogFactory.getLog(AbstractTileCache.class);
-	private String cachePath;
+	private String cachePath = "/tmp";
+	private String name;
+	private String serverUrl;
 	
 	public Tile getTile(String uri) {
 		
 		Tile tile = parseTile(uri);
+		
+		if (tile == null)
+			return null;
 		
 		if (tileMap.containsKey(tile.getKey())) {   // found in memory cache
 			if (log.isDebugEnabled())
@@ -103,6 +110,41 @@ public abstract class AbstractTileCache implements TileCache {
 	 */
 	public void setCachePath(String cachePath) {
 		this.cachePath = cachePath;
+	}
+	
+	public void setConfig(CacheConfig config) {
+		this.cachePath = config.getPath();
+		this.tileMap = Collections.synchronizedMap(new LRUMap(config.getSize()));
+		this.name = config.getName();
+		this.serverUrl = config.getUrl();
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the serverUrl
+	 */
+	public String getServerUrl() {
+		return serverUrl;
+	}
+
+	/**
+	 * @param serverUrl the serverUrl to set
+	 */
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
 	}
 
 }

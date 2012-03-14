@@ -19,6 +19,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * WMS Tile Cache implementation.
  * 
@@ -26,6 +29,7 @@ import java.net.URL;
  */
 public class MapnikCache extends AbstractTileCache {
 	
+	private static final Log log = LogFactory.getLog(MapnikCache.class);
 	private String tileServer = "http://tile.openstreetmap.org";
 
 	/**
@@ -33,14 +37,21 @@ public class MapnikCache extends AbstractTileCache {
 	 */
 	@Override
 	protected Tile parseTile(String uri) {
-		String[] splited = uri.split("/");
-		int length = splited.length;
+		Tile tile = null;
+		try  {
+			String[] splited = uri.split("/");
+			int length = splited.length;
 		
-		int x = Integer.parseInt(splited[length - 2]);
-		int y = Integer.parseInt(splited[length - 1].substring(0, splited[length - 1].lastIndexOf('.')));
-		int zoom = Integer.parseInt(splited[length - 3]);
+			int x = Integer.parseInt(splited[length - 2]);
+			int y = Integer.parseInt(splited[length - 1].substring(0, splited[length - 1].lastIndexOf('.')));
+			int zoom = Integer.parseInt(splited[length - 3]);
 		
-		return new Tile(x, y, zoom);
+			tile = new Tile(x, y, zoom);
+		} 
+		catch (Exception e) {
+			log.error(e);
+		}
+		return tile;
 	}
 
 	/**
@@ -78,6 +89,13 @@ public class MapnikCache extends AbstractTileCache {
 	 */
 	public void setTileServer(String tileServer) {
 		this.tileServer = tileServer;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getServerUrl() {
+		return tileServer;
 	}
 
 

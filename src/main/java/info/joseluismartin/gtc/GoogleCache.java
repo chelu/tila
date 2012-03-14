@@ -18,9 +18,14 @@ package info.joseluismartin.gtc;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.servlet.mvc.method.annotation.UriComponentsBuilderMethodArgumentResolver;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
 /**
@@ -34,24 +39,35 @@ public class GoogleCache extends AbstractTileCache {
 
 	private static final Log log = LogFactory.getLog(GoogleCache.class);
 	private int serverIndex = 0;
+	@SuppressWarnings("unused")
 	private enum GoogleMapType { MAP , SATELITE(), MIXTED };
 
 
 	/**
 	 * Parse request and create a new tile with x, y, and zoom level
-	 * @param req http request
+	 * @param path uri request path
 	 * @return a new Tile from request query string
 	 */
-	protected Tile parseTile(String uri) {
-		String[] splited = uri.split("&");
-		int x = Integer.parseInt((splited[0].substring(splited[0]
-		                                                       .lastIndexOf('=') + 1)));
-		int y = Integer.parseInt((splited[1].substring(splited[1]
-		                                                       .lastIndexOf('=') + 1)));
-		int zoom = Integer.parseInt((splited[2].substring(splited[2]
-		                                                          .lastIndexOf('=') + 1)));
-		return new Tile(x, y, zoom);
-
+	protected Tile parseTile(String path) {
+		Tile tile = null;
+		try {
+			String[] parts = path.split("/");
+			String type = parts[0];
+			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
+			builder.query(parts[1]);
+			UriComponents components = builder.build();
+			MultiValueMap<String, String> params = components.getQueryParams();
+			int x = Integer.parseInt(params.getFirst("x"));
+			int y = Integer.parseInt(params.getFirst("y"));
+			int zoom = Integer.parseInt(params.getFirst("z"));
+			tile = new Tile(x, y, zoom);
+			tile.setType(type);
+		}
+		catch (Exception e) {
+			log.error(e);
+		}
+		
+		return tile;
 	}
 
 	/**
@@ -65,11 +81,8 @@ public class GoogleCache extends AbstractTileCache {
 		int zoom = tile.getZoom();
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("http://mt");
-		sb.append(this.serverIndex++);
-		if (serverIndex > 2)
-			serverIndex = 0;
-		sb.append(".google.com/vt/");
+		sb.append(getServerUrl());
+		sb.append("/vt/");
 		sb.append("x=");
 		sb.append(x);
 		sb.append("&y=");
@@ -94,8 +107,27 @@ public class GoogleCache extends AbstractTileCache {
 	    int x = tile.getX();
 	    int y = tile.getY();
 	    int zoom = tile.getZoom();
+	    String type = tile.getType();
 	    
-	    return getCachePath() + File.separator + zoom + File.separator + x / 1024 + File.separator + x % 1024 + File.separator + y / 1024 + File.separator + y % 1024 + ".png";
+	    return getCachePath() +File.separator + getName() + File.separator + 
+	    		type + File.separator + zoom + File.separator + x / 1024 + 
+	    		File.separator + x % 1024 + File.separator + y / 1024 + 
+	    		File.separator + y % 1024 + ".png";
 	 }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getServerUrl() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("http://mt");
+		sb.append(this.serverIndex++);
+		sb.append(".google.com");
+		
+		if (serverIndex > 2)
+			serverIndex = 0;
+		
+		return sb.toString();
+	}
 }
 	 

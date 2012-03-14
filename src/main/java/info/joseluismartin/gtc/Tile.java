@@ -38,11 +38,8 @@ public class Tile {
 	private int zoom;
 	/** tile image as byte array */
 	private byte[] image;
-	/**
-	 *  server index to iterate when creating google url of this tile.
-	 *  google have three servers mt0, mt1, and mt2, a call to getTile
-	 */
-	private static int serverIndex = 0;
+	/** used from some caches (like google maps) */
+	private String type;
 	
 	/**
 	 * @param x
@@ -66,38 +63,14 @@ public class Tile {
 	/**
 	 * @return key from tile data
 	 */
-	public long getKey() {
-		long key = x*10000000 + y*100 + zoom;
-		return key;
-	}
-	
-	public String getGoogleTileUrl(Tile tile) {
-		int x = tile.getX();
-		int y = tile.getY();
-		int zoom = tile.getZoom();
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("http://mt");
-		sb.append(newIndex());
-		sb.append(".google.com/vt/");
-		sb.append("x=");
-		sb.append(x);
-		sb.append("&y=");
-		sb.append(y);
-		sb.append("&zoom=");
-		sb.append(zoom);
-		String url = sb.toString();
-
-		return url;
-	}
-
-	private  int newIndex() {
-		int index = serverIndex++;
-
-		if (serverIndex > 2)
-			serverIndex = 0;
-	
-		return index;
+	public int getKey() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + x;
+		result = prime * result + y;
+		result = prime * result + zoom;
+		return result;
 	}
 	
 	// Getters and Setters
@@ -137,4 +110,19 @@ public class Tile {
 	public boolean isEmpty() {
 		return image == null;
 	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+
 }

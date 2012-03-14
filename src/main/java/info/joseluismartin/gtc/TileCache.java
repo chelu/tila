@@ -15,6 +15,8 @@
  */
 package info.joseluismartin.gtc;
 
+import info.joseluismartin.gtc.model.CacheConfig;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -45,4 +47,15 @@ public interface TileCache {
 	 * @return URL from tile.
 	 */
 	URL getTileUrl(Tile tile);
+	
+	/**
+	 * Sets the cache Config
+	 * @param config config to set
+	 */
+	void setConfig(CacheConfig config);
+	
+	/**
+	 * Gets server Url
+	 */
+	String getServerUrl();
 }
