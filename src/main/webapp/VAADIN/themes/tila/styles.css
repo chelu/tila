@@ -1,0 +1,48 @@
+@import "../reindeer/styles.css";
+
+
+#jlm {
+	position: absolute;
+	right: 0px;
+}
+
+#banner {
+	background-color: #ffa200;
+	margin-bottom: 20px;
+}
+
+#main {
+	padding: 20px;
+	/*
+	position: absolute;
+	left: 50%;
+    margin-left: -600px;
+	width: 1200px;
+	*/
+} 
+
+.menuItem {
+	border: 0px;
+	
+}
+
+.menuItem-selected {
+	background-color: #ffa200;
+	border: 0px;
+}
+
+.menuItem-selected .v-embedded-image , .menuItem-selected .v-label {
+	background-color: #ffa200;
+}
+
+.menuItem .v-caption, .menuItem-selected .v-caption {
+	display: none;
+}
+
+.v-panel-content-menuItem-selected {
+	background-color: #ffa200 !important;
+}
+
+.v-panel-content-menuItem-selected > div {
+	background-color: #ffa200 !important;
+}
