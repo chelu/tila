@@ -17,12 +17,13 @@ package info.joseluismartin.gtc.mvc;
 
 import info.joseluismartin.gtc.CacheManager;
 import info.joseluismartin.gtc.GoogleCache;
+import info.joseluismartin.gtc.StreamUtils;
 import info.joseluismartin.gtc.Tile;
 import info.joseluismartin.gtc.TileCache;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
@@ -32,6 +33,7 @@ import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,7 +42,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -71,38 +72,50 @@ public class CacheController {
 	private Proxy proxy = Proxy.NO_PROXY;
 	@Autowired
 	private CacheManager cacheService;
-	private Pattern URI_PATTERN = Pattern.compile("/([a-z-]+)/(.*)");
+	private Pattern URI_PATTERN = Pattern.compile("/([a-z-]+)/?(.*)");
 
 
 	/**
 	 * Parse request and create a new Tile.
 	 * Try to find tile in memory cache first, if not found, try to read from disk, if not found,
 	 * download tile from server and write it to cache.
+	 * @throws ServletException 
 	 */
 	@RequestMapping("/**")
-	protected void handle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	protected void handle(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 
 		String requestUri = req.getRequestURI();
+		
+		if (req.getQueryString() != null) 
+			requestUri += "?" + req.getQueryString();
+	
 		String contextPath = req.getContextPath();
 		String requestPart = StringUtils.substringAfter(requestUri, contextPath);
 		String queryPart = null;
 		String cachePath = null;
 		Matcher m  = URI_PATTERN.matcher(requestPart);
+		TileCache cache = null;
+		Tile tile = null;
 
 		if (m.find()) {
 			cachePath = m.group(1);
 			queryPart = m.group(2);
+			cache = getTileCache(cachePath);
+			tile = cache.getTile(queryPart);
+		}
+		
+		if (cache == null) {
+			throw new ServletException("There are not tile cache configured for path [" + "cachePath" + "]");
 		}
 
-		TileCache cache = getTileCache(cachePath);
-		Tile tile = cache.getTile(queryPart);
-
+		// Have a cache to handle request, now test the tile
+		URL remoteUrl = new URL(cache.getServerUrl() + "/" + queryPart);
+		
 		if (tile == null) {
-			String redirectUrl = cache.getServerUrl() + "/" + queryPart;
 			if (log.isDebugEnabled()) {
-				log.debug("Can't parse tile url [" + requestUri +"], redirecting to:" + redirectUrl);
+				log.debug("Can't parse tile url [" + requestUri +"], proxy to:" + remoteUrl);
 			}
-			resp.sendRedirect(redirectUrl);
+			StreamUtils.write(getServerStream(remoteUrl), resp.getOutputStream());
 		}
 		else {
 			if (tile.isEmpty()) {
@@ -110,7 +123,7 @@ public class CacheController {
 				// try three times...
 				for (int i= 0; i < 3; i++) {
 					try {
-						downloadTile(tile, cache.getTileUrl(tile));
+						downloadTile(tile, remoteUrl);
 						break;
 					}catch (IOException ioe) {
 						log.error("Error downloading the tile, try: " + i, ioe);
@@ -135,16 +148,23 @@ public class CacheController {
 	 * @throws IOException
 	 */
 	private void downloadTile(Tile tile, URL url) throws MalformedURLException, IOException {
+		InputStream is = getServerStream(url);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		StreamUtils.write(is, baos);
+		tile.setImage(baos.toByteArray());
+	}
 
+	/**
+	 * Connect to remote server and get connection input stream
+	 * @param url url to connect
+	 * @return connection InputStream
+	 * @throws IOException
+	 */
+	private InputStream getServerStream(URL url) throws IOException {
 		URLConnection conn = url.openConnection(proxy);
 		conn.setRequestProperty("User-Agent", USER_AGENT);
-		BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		int b;
-		while ((b = bis.read()) != -1) {
-			baos.write(b);
-		}
-		tile.setImage(baos.toByteArray());
+		InputStream is = conn.getInputStream();
+		return is;
 	}	
 
 
