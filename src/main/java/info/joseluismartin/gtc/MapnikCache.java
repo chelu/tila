@@ -15,7 +15,6 @@
  */
 package info.joseluismartin.gtc;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -30,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 public class MapnikCache extends AbstractTileCache {
 	
 	private static final Log log = LogFactory.getLog(MapnikCache.class);
+	@SuppressWarnings("unused")
 	private String tileServer = "http://tile.openstreetmap.org";
 
 	/**
@@ -54,11 +54,8 @@ public class MapnikCache extends AbstractTileCache {
 		return tile;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public URL getTileUrl(Tile tile) {
-		String url = tileServer + "/" + tile.getZoom() + "/" + tile.getX() +"/" + tile.getY() + ".png";
+		String url = getServerUrl() + "/" + tile.getZoom() + "/" + tile.getX() +"/" + tile.getY() + ".png";
 		try {
 			return new URL (url);
 		} catch (MalformedURLException e) {
@@ -66,37 +63,4 @@ public class MapnikCache extends AbstractTileCache {
 		}
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	protected String getCachePath(Tile tile) {
-		int x = tile.getX();
-		int y = tile.getY();
-		int zoom = tile.getZoom();
-
-		return getCachePath() + File.separator + zoom + File.separator + x + File.separator + y + ".png";
-	}
-
-	/**
-	 * @return the tileServer
-	 */
-	public String getTileServer() {
-		return tileServer;
-	}
-
-	/**
-	 * @param tileServer the tileServer to set
-	 */
-	public void setTileServer(String tileServer) {
-		this.tileServer = tileServer;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getServerUrl() {
-		return tileServer;
-	}
-
-
 }

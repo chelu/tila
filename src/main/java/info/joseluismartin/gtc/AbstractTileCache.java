@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -75,6 +76,7 @@ public abstract class AbstractTileCache implements TileCache {
 	public void storeTile(Tile tile) throws IOException {
 		File file = new File(getCachePath(tile));
 		FileUtils.writeByteArrayToFile(file, tile.getImage());
+		tileMap.put(tile.getKey(), tile);
 	}
 
 	
@@ -86,16 +88,24 @@ public abstract class AbstractTileCache implements TileCache {
 	/**
 	 * @return File path of a tile in disk cache
 	 */
-	protected String getCachePath(Tile tile) {
-		int x = tile.getX() / 100;
-		int y = tile.getY() / 100;
-		int zoom = tile.getZoom();
+	 protected String getCachePath(Tile tile)
+	  {
+	    int x = tile.getX();
+	    int y = tile.getY();
+	    int zoom = tile.getZoom();
+	    String type = tile.getType();
+	    
+	    String path = getCachePath() + File.separator + getName();
+	    if (!StringUtils.isBlank(type)) {
+	    	path += File.separator + type;
+	    }
+	    path += File.separator + zoom + File.separator + x / 1024 + 
+	    		File.separator + x % 1024 + File.separator + y / 1024 + 
+	    		File.separator + y % 1024 + ".png";
+	    
+	    return path;
+	 }
 
-		return cachePath + File.separator + x + File.separator + y
-		+ File.separator + "g_" + tile.getX() + "_" + tile.getY() + "_"
-		+ zoom + ".png";
-	}
-	
 	protected abstract Tile parseTile(String uri);
 
 	/**
@@ -113,7 +123,6 @@ public abstract class AbstractTileCache implements TileCache {
 	}
 	
 	public void setConfig(CacheConfig config) {
-		this.cachePath = config.getPath();
 		this.tileMap = Collections.synchronizedMap(new LRUMap(config.getSize()));
 		this.name = config.getName();
 		this.serverUrl = config.getUrl();

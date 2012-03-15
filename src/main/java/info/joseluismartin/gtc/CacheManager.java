@@ -17,6 +17,7 @@ package info.joseluismartin.gtc;
 
 import info.joseluismartin.gtc.model.CacheConfig;
 import info.joseluismartin.gtc.model.CacheType;
+import info.joseluismartin.gtc.model.SystemConfig;
 import info.joseluismartin.service.PersistentService;
 
 import java.util.Hashtable;
@@ -41,6 +42,8 @@ public class CacheManager implements CacheService, ApplicationContextAware  {
 	private ApplicationContext applicationContext;
 	@Resource
 	private PersistentService<CacheConfig, Integer> cacheService;
+	@Resource
+	private SystemConfig systemConfig;
 	
 	public TileCache findCache(String key) {
 		TileCache cache =  cacheMap.get(key);
@@ -53,6 +56,7 @@ public class CacheManager implements CacheService, ApplicationContextAware  {
 	}
 	
 	public void init() {
+		cacheMap.clear();
 		List<CacheConfig> configs = cacheService.getAll();
 		for (CacheConfig c : configs) {
 			if (c.isActive()) {
@@ -68,6 +72,8 @@ public class CacheManager implements CacheService, ApplicationContextAware  {
 		
 		if (type != null) {
 			TileCache cache = (TileCache) applicationContext.getBean(config.getType().getBeanName());
+			config.setDiskCachePath(systemConfig.getCachePath());
+			cache.setConfig(config);
 			cacheMap.put(config.getPath(), cache);
 		}
 	}
@@ -78,5 +84,19 @@ public class CacheManager implements CacheService, ApplicationContextAware  {
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 		
+	}
+
+	/**
+	 * @return the systemConfig
+	 */
+	public SystemConfig getSystemConfig() {
+		return systemConfig;
+	}
+
+	/**
+	 * @param systemConfig the systemConfig to set
+	 */
+	public void setSystemConfig(SystemConfig systemConfig) {
+		this.systemConfig = systemConfig;
 	}
 }

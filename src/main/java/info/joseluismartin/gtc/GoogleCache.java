@@ -18,12 +18,10 @@ package info.joseluismartin.gtc;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.mvc.method.annotation.UriComponentsBuilderMethodArgumentResolver;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -101,19 +99,7 @@ public class GoogleCache extends AbstractTileCache {
 		}
 	}
 	
-	 protected String getCachePath(Tile tile)
-	  {
-	    int x = tile.getX();
-	    int y = tile.getY();
-	    int zoom = tile.getZoom();
-	    String type = tile.getType();
-	    
-	    return getCachePath() +File.separator + getName() + File.separator + 
-	    		type + File.separator + zoom + File.separator + x / 1024 + 
-	    		File.separator + x % 1024 + File.separator + y / 1024 + 
-	    		File.separator + y % 1024 + ".png";
-	 }
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
