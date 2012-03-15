@@ -39,7 +39,10 @@ public class Tile {
 	/** tile image as byte array */
 	private byte[] image;
 	/** used from some caches (like google maps) */
-	private String type;
+	private String type ="";
+	
+	public Tile() {
+	}
 	
 	/**
 	 * @param x

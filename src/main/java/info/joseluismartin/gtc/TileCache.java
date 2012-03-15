@@ -42,13 +42,6 @@ public interface TileCache {
 	void storeTile(Tile tile) throws IOException;
 	
 	/**
-	 * Gets URL from a Tile
-	 * @param tile the Tile
-	 * @return URL from tile.
-	 */
-	URL getTileUrl(Tile tile);
-	
-	/**
 	 * Sets the cache Config
 	 * @param config config to set
 	 */
