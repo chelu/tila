@@ -23,12 +23,21 @@
 
 .menuItem {
 	border: 0px;
-	
+	margin: 2px;
+}
+
+.v-panel-content-menuItem {
+	padding:5px;
+}
+
+.v-panel-content-menuItem-selected {
+	padding:5px;
+	margin: 2px;
+	background-color: #ffa200;
 }
 
 .menuItem-selected {
-	background-color: #ffa200;
-	border: 0px;
+	border: 1px;
 }
 
 .menuItem-selected .v-embedded-image , .menuItem-selected .v-label {

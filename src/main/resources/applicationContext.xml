@@ -31,13 +31,13 @@
 
 		<property name="acquireIncrement" value="3" />
 		<property name="minPoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
+		<property name="maxPoolSize" value="3" />
 		<property name="maxIdleTime" value="5" />
 		<property name="numHelperThreads" value="1" />
 
 		<property name="idleConnectionTestPeriod" value="10" />
 		<property name="autoCommitOnClose" value="false" />
-		<property name="preferredTestQuery" value="select 1;" />
+		<property name="preferredTestQuery" value="select 1" />
 		<property name="testConnectionOnCheckin" value="true" />
 
 		<property name="checkoutTimeout" value="60000" />
@@ -91,6 +91,14 @@
 	</bean>
 	<bean id="cacheDao" class="info.joseluismartin.dao.jpa.JpaDao">
 		<constructor-arg value="info.joseluismartin.gtc.model.CacheConfig" />
+	</bean>
+	
+	<bean id="configService" class="info.joseluismartin.logic.PersistentManager">
+		<property name="dao" ref="configDao" />
+	</bean>
+	
+	<bean id="configDao" class="info.joseluismartin.dao.jpa.JpaDao">
+		<constructor-arg value="info.joseluismartin.gtc.model.ConfigProperty" />
 	</bean>
    	
    <!-- UI Widgets -->
@@ -194,7 +202,7 @@
 	
 	<!-- Cache Form Editor -->
 	<bean id="cacheEditor" class="com.vaadin.ui.Form" scope="prototype">
-		<property name="visibleItemProperties" value="#{ { 'directConnection', 'name', 'type', 'path','url','active', 'size' } }" />
+		<property name="visibleItemProperties" value="#{ { 'name', 'type', 'path','url','active', 'size' } }" />
 		<property name="formFieldFactory">
 			<bean class="info.joseluismartin.vaadin.ui.form.AnnotationFieldFactory">
 				<property name="fieldProcessors">
@@ -234,6 +242,32 @@
 		</property>
 	</bean>
 	
+	<bean id="configForm" class="com.vaadin.ui.Form" scope="prototype">
+			<property name="formFieldFactory" ref="defaultFieldFactory" />
+			<property name="itemDataSource" ref="systemItem" />
+	</bean>
+	
+	<bean id="systemConfig" class="info.joseluismartin.gtc.model.SystemConfig" />
+	
+
+	<bean id="systemItem" class="com.vaadin.data.util.BeanItem">
+		<constructor-arg ref="systemConfig" />
+	</bean>	
+	
+	<bean id="configFormEditor" class="info.joseluismartin.vaadin.ui.form.FormEditor">
+		<property name="persistentService" ref="persistentService" />
+		<property name="form" ref="configForm" />
+		<property name="actions">
+			<list>
+				<bean class="info.joseluismartin.gtc.admin.ConfigSaveAction"
+					p:caption="Save" p:icon="images/ok.png" />
+				<bean class="info.joseluismartin.vaadin.ui.form.CancelAction"
+					p:caption="Cancel" p:icon="images/cancel.png" />
+			</list>
+		</property>
+	</bean>
+	
+	
 	<bean id="paginator" class="info.joseluismartin.vaadin.ui.table.VaadinPaginator"
 		scope="prototype">
 		<property name="first" ref="paginatorFirstButton" />
@@ -272,21 +306,26 @@
 					
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/proxy.png"
-					p:name="Proxy Configuration"
+					p:name="Proxy"
 					p:component-ref="proxyEditor" />
+					
+				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
+					p:icon="images/system.png"
+					p:name="System"
+					p:component-ref="configFormEditor" />
 			</list>
 			
 		</property>
 	</bean>
 	
-	<bean id="cacheManager" class="info.joseluismartin.gtc.CacheManager">
-	</bean>	
+	<!-- Caches -->
+	<bean id="cacheManager" class="info.joseluismartin.gtc.CacheManager" />
 	
-	<bean id="googleMapsCache" class="info.joseluismartin.gtc.GoogleCache">
+	<bean id="googleMapsCache" class="info.joseluismartin.gtc.GoogleCache" scope="prototype" />
 	
-	</bean>
+	<bean id="mapnikCache" class="info.joseluismartin.gtc.MapnikCache" scope="prototype"/>
 	
-	<bean id="mapnikCache" class="info.joseluismartin.gtc.MapnikCache" />
+	<bean id="tmsCache" class="info.joseluismartin.gtc.TmsCache" scope="prototype "/>
 
 	<!-- Property Editors -->
 	<bean id="customEditorConfigurer"
