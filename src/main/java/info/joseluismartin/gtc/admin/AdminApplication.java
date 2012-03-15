@@ -15,9 +15,6 @@
  */
 package info.joseluismartin.gtc.admin;
 
-import info.joseluismartin.gtc.model.CacheConfig;
-import info.joseluismartin.vaadin.ui.table.PageableTable;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 

@@ -25,6 +25,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 
 /**
@@ -47,6 +48,8 @@ public class CacheConfig implements Serializable {
 	@ManyToOne
 	@JoinColumn(name="type")
 	private CacheType type;
+	@Transient
+	private String diskCachePath = "";
 
 	/**
 	 * @return the id
@@ -144,5 +147,19 @@ public class CacheConfig implements Serializable {
 	 */
 	public void setType(CacheType type) {
 		this.type = type;
+	}
+
+	/**
+	 * @return the diskCachePath
+	 */
+	public String getDiskCachePath() {
+		return diskCachePath;
+	}
+
+	/**
+	 * @param diskCachePath the diskCachePath to set
+	 */
+	public void setDiskCachePath(String diskCachePath) {
+		this.diskCachePath = diskCachePath;
 	}
 }

@@ -36,7 +36,7 @@ public class ProxyForm extends VerticalLayout implements ClickListener {
 	private PersistentService<ProxyConfig, Integer> proxyService;
 	private Form form = new Form();
 	private Object[] visibleItemProperties = {
-			"host", "port", "userName", "password"
+			"directConnection, host", "port", "userName", "password"
 	};
 	private ProxyConfig proxy;
 	private FormFieldFactory fieldFactory;

@@ -15,6 +15,8 @@
  */
 package info.joseluismartin.gtc.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,7 +30,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="config")
-public class ConfigProperty {
+public class ConfigProperty implements Serializable {
 
 	@GeneratedValue(generator="config_id_seq", strategy=GenerationType.SEQUENCE)
 	@SequenceGenerator(name="config_id_seq", sequenceName="config_id_seq")
