@@ -47,6 +47,7 @@ public class MapnikCache extends AbstractTileCache {
 			int zoom = Integer.parseInt(splited[length - 3]);
 		
 			tile = new Tile(x, y, zoom);
+			tile.setMimeType("image/png");
 		} 
 		catch (Exception e) {
 			log.error(e);

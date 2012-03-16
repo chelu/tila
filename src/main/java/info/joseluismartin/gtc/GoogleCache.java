@@ -15,7 +15,6 @@
  */
 package info.joseluismartin.gtc;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -57,6 +56,7 @@ public class GoogleCache extends AbstractTileCache {
 			int zoom = Integer.parseInt(params.getFirst("z"));
 			tile = new Tile(x, y, zoom);
 			tile.setType(type);
+			tile.setMimeType("image/png");
 		}
 		catch (Exception e) {
 			log.error(e);
