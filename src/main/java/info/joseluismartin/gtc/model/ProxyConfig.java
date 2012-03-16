@@ -30,11 +30,12 @@ import javax.persistence.Table;
 public class ProxyConfig implements Serializable {
 	
 	@Id
-	private  Integer id = 1;
+	private Integer id = 1;
 	private String host;
 	private Integer port;
 	private String userName;
 	private String password;
+	private boolean directConnection;
 	
 	public boolean isValid() {
 		return port != 0;
@@ -108,5 +109,19 @@ public class ProxyConfig implements Serializable {
 	 */
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	/**
+	 * @return the directConnection
+	 */
+	public boolean isDirectConnection() {
+		return directConnection;
+	}
+
+	/**
+	 * @param directConnection the directConnection to set
+	 */
+	public void setDirectConnection(boolean directConnection) {
+		this.directConnection = directConnection;
 	}
 }

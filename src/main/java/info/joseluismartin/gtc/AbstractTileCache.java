@@ -19,6 +19,7 @@ import info.joseluismartin.gtc.model.CacheConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 
@@ -41,6 +42,7 @@ public abstract class AbstractTileCache implements TileCache {
 	private String cachePath = "/tmp";
 	private String name;
 	private String serverUrl;
+	private String path;
 	
 	public Tile getTile(String uri) {
 		
@@ -94,11 +96,17 @@ public abstract class AbstractTileCache implements TileCache {
 	    int y = tile.getY();
 	    int zoom = tile.getZoom();
 	    String type = tile.getType();
+	    String layer = tile.getLayer();
 	    
-	    String path = getCachePath() + File.separator + getName();
+	    String path = getCachePath() + File.separator + getPath();
 	    if (!StringUtils.isBlank(type)) {
 	    	path += File.separator + type;
 	    }
+	    
+	    if (!StringUtils.isBlank(layer)) {
+	    	path += File.separator + type;
+	    }
+	    
 	    path += File.separator + zoom + File.separator + x / 1024 + 
 	    		File.separator + x % 1024 + File.separator + y / 1024 + 
 	    		File.separator + y % 1024 + ".png";
@@ -126,6 +134,8 @@ public abstract class AbstractTileCache implements TileCache {
 		this.tileMap = Collections.synchronizedMap(new LRUMap(config.getSize()));
 		this.name = config.getName();
 		this.serverUrl = config.getUrl();
+		this.cachePath = config.getDiskCachePath();
+		this.path = config.getPath();
 	}
 
 	/**
@@ -154,6 +164,28 @@ public abstract class AbstractTileCache implements TileCache {
 	 */
 	public void setServerUrl(String serverUrl) {
 		this.serverUrl = serverUrl;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @throws IOException 
+	 */
+	public InputStream parseResponse(InputStream serverStream, String remoteUri, String localUri) throws IOException {
+		return serverStream;
+	}
+
+	/**
+	 * @return the path
+	 */
+	public String getPath() {
+		return path;
+	}
+
+	/**
+	 * @param path the path to set
+	 */
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }

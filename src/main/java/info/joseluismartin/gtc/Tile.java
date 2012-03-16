@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,6 +41,10 @@ public class Tile {
 	private byte[] image;
 	/** used from some caches (like google maps) */
 	private String type ="";
+	/** layer */
+	private String layer;
+	/** mime type */
+	private String mimeType;
 	
 	public Tile() {
 	}
@@ -70,10 +75,15 @@ public class Tile {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((layer == null) ? 0 : layer.hashCode());
 		result = prime * result + x;
 		result = prime * result + y;
 		result = prime * result + zoom;
 		return result;
+	}
+	
+	public String getFileExension() {
+		return StringUtils.substringAfter(mimeType, "/"); 
 	}
 	
 	// Getters and Setters
@@ -126,6 +136,34 @@ public class Tile {
 	 */
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	/**
+	 * @return the layer
+	 */
+	public String getLayer() {
+		return layer;
+	}
+
+	/**
+	 * @param layer the layer to set
+	 */
+	public void setLayer(String layer) {
+		this.layer = layer;
+	}
+
+	/**
+	 * @return the mimeType
+	 */
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	/**
+	 * @param mimeType the mimeType to set
+	 */
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
 	}
 
 }

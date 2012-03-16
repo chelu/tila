@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -48,10 +49,14 @@ public class CacheManager implements CacheService, ApplicationContextAware  {
 	public TileCache findCache(String key) {
 		TileCache cache =  cacheMap.get(key);
 		if (cache == null) {
-			log.warn("TileCache not found for [" + key + "], using default");
-			cache = cacheMap.get("google");
+			for (CacheConfig c : cacheService.getAll()) {
+				if (c.isActive() && c.getPath().equals(key)) {
+					if (log.isDebugEnabled())
+						log.debug("Loading cache: [" + c.getName() +"]");
+					loadCache(c);
+				}
+			}
 		}
-		
 		return cache;
 	}
 	
@@ -69,12 +74,16 @@ public class CacheManager implements CacheService, ApplicationContextAware  {
 	
 	public void loadCache(CacheConfig config) {
 		CacheType type = config.getType();
-		
-		if (type != null) {
-			TileCache cache = (TileCache) applicationContext.getBean(config.getType().getBeanName());
-			config.setDiskCachePath(systemConfig.getCachePath());
-			cache.setConfig(config);
-			cacheMap.put(config.getPath(), cache);
+		try {
+			if (type != null) {
+				TileCache cache = (TileCache) applicationContext.getBean(config.getType().getBeanName());
+				config.setDiskCachePath(systemConfig.getCachePath());
+				cache.setConfig(config);
+				cacheMap.put(config.getPath(), cache);
+			}
+		}
+		catch (NoSuchBeanDefinitionException e) {
+			log.error("Failed to load cache bean name [" + e.getBeanName() + "]");
 		}
 	}
 

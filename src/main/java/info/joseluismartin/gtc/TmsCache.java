@@ -45,10 +45,12 @@ public class TmsCache extends AbstractTileCache {
 			String map = parts[1];
 			int  zoom = Integer.parseInt(parts[2]);
 			int x = Integer.parseInt(parts[3]);
-			int y = Integer.parseInt(parts[4]);
+			String[] file = parts[4].split(".");
+			int y = Integer.parseInt(file[0]);
+			String mimeType = "image/" + file[1];
 			
 			tile = new TmsTile(x, y , zoom, map, version);
-			
+			tile.setMimeType(mimeType);
 		}
 		catch (Exception e) {
 			log.error(e);
@@ -68,7 +70,7 @@ public class TmsCache extends AbstractTileCache {
 		  int zoom = tile.getZoom();
 		  String type = tile.getType();
 		    
-		  String path = getCachePath() + File.separator + getName();
+		  String path = getCachePath() + File.separator + getPath();
 		    if (!StringUtils.isBlank(type)) {
 		    	path += File.separator + type;
 		    }

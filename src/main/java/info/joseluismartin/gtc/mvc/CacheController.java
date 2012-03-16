@@ -17,7 +17,6 @@ package info.joseluismartin.gtc.mvc;
 
 import info.joseluismartin.gtc.CacheManager;
 import info.joseluismartin.gtc.GoogleCache;
-import info.joseluismartin.gtc.StreamUtils;
 import info.joseluismartin.gtc.Tile;
 import info.joseluismartin.gtc.TileCache;
 
@@ -37,6 +36,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,8 +90,9 @@ public class CacheController {
 			requestUri += "?" + req.getQueryString();
 	
 		String contextPath = req.getContextPath();
+		String servletPath = req.getServletPath();
 		String requestPart = StringUtils.substringAfter(requestUri, contextPath);
-		String queryPart = null;
+		String query = null;
 		String cachePath = null;
 		Matcher m  = URI_PATTERN.matcher(requestPart);
 		TileCache cache = null;
@@ -99,23 +100,27 @@ public class CacheController {
 
 		if (m.find()) {
 			cachePath = m.group(1);
-			queryPart = m.group(2);
+			query = m.group(2);
 			cache = getTileCache(cachePath);
-			tile = cache.getTile(queryPart);
 		}
 		
 		if (cache == null) {
 			throw new ServletException("There are not tile cache configured for path [" + "cachePath" + "]");
 		}
-
+		
+		
 		// Have a cache to handle request, now test the tile
-		URL remoteUrl = new URL(cache.getServerUrl() + "/" + queryPart);
+		tile = cache.getTile(query);
+		
+		String remoteUrlString = cache.getServerUrl() + "/" + query;
+		URL remoteUrl = new URL(remoteUrlString);
 		
 		if (tile == null) {
 			if (log.isDebugEnabled()) {
-				log.debug("Can't parse tile url [" + requestUri +"], proxy to:" + remoteUrl);
+				log.debug("Can't parse tile url [" + requestUri +"], proxy to:" + remoteUrlString);
 			}
-			StreamUtils.write(getServerStream(remoteUrl), resp.getOutputStream());
+			InputStream is = cache.parseResponse(getServerStream(remoteUrl), remoteUrlString, getContextUrl(req) );
+			IOUtils.copy(is, resp.getOutputStream());
 		}
 		else {
 			if (tile.isEmpty()) {
@@ -131,10 +136,42 @@ public class CacheController {
 				}
 				cache.storeTile(tile);   
 			}
-			resp.setContentType("image/png");
+			resp.setContentType(tile.getMimeType());
 			resp.getOutputStream().write(tile.getImage());
 		}
 	}
+
+	/**
+	 * @param req
+	 * @return
+	 */
+	private String getContextUrl(HttpServletRequest req) {
+	
+	    StringBuffer url = new StringBuffer ();
+	    String scheme = req.getScheme ();
+		int port = req.getServerPort ();
+		String servletPath = req.getServletPath ();
+		String contextPaht = req.getContextPath();
+		url.append (scheme);	
+		url.append ("://");
+		url.append (req.getServerName ());
+			
+		if ((scheme.equals ("http") && port != 80)
+				|| (scheme.equals ("https") && port != 443)) {
+			    url.append (':');
+			    url.append (req.getServerPort ());
+			}
+		
+		if (contextPaht != null)
+			url.append(contextPaht);
+		
+		if (servletPath != null)
+			url.append (servletPath);
+		
+		return url.toString();
+	}
+
+
 
 	private TileCache getTileCache(String cachePath) {
 		return cacheService.findCache(cachePath);
@@ -150,7 +187,7 @@ public class CacheController {
 	private void downloadTile(Tile tile, URL url) throws MalformedURLException, IOException {
 		InputStream is = getServerStream(url);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		StreamUtils.write(is, baos);
+		IOUtils.copy(is, baos);
 		tile.setImage(baos.toByteArray());
 	}
 

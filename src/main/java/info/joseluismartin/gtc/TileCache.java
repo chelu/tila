@@ -18,7 +18,7 @@ package info.joseluismartin.gtc;
 import info.joseluismartin.gtc.model.CacheConfig;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 /**
  *  TileCache interface. Implement to create new tile caches. 
@@ -51,4 +51,13 @@ public interface TileCache {
 	 * Gets server Url
 	 */
 	String getServerUrl();
+
+	/**
+	 * Let caches to modify response from remote server.
+	 * @param serverStream remote server inputStream
+	 * @param query query send to remote server
+	 * @return response InputStream
+	 * @throws IOException 
+	 */
+	InputStream parseResponse(InputStream serverStream, String remoteUri, String localUri) throws IOException;
 }
