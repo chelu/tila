@@ -179,7 +179,7 @@ public class CacheController {
 
 
 	/**
-	 * Download tile from google tile servers
+	 * Download tile from tile server
 	 * @param tile
 	 * @throws MalformedURLException
 	 * @throws IOException

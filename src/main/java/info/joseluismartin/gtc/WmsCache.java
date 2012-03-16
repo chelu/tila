@@ -130,16 +130,4 @@ public class WmsCache  extends AbstractTileCache {
 		return path;
 	}
 	
-	/**
-	 * Create a parameter map from a query string
-	 * @param uri the query string
-	 * @return a map with parameters
-	 */
-	protected Map<String, String> getParameterMap(String uri) {
-		UriComponentsBuilder b = UriComponentsBuilder.newInstance();
-		b.query(uri);
-		UriComponents c = b.build();
-		return c.getQueryParams().toSingleValueMap();
-	}
-	
 }

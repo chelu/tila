@@ -15,14 +15,10 @@
  */
 package info.joseluismartin.gtc;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 
 /**
@@ -44,16 +40,15 @@ public class GoogleCache extends AbstractTileCache {
 	 */
 	protected Tile parseTile(String path) {
 		Tile tile = null;
+		if (path.startsWith("?"))
+				path = path.substring(1);
 		try {
 			String[] parts = path.split("/");
 			String type = parts[0];
-			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
-			builder.query(parts[1]);
-			UriComponents components = builder.build();
-			MultiValueMap<String, String> params = components.getQueryParams();
-			int x = Integer.parseInt(params.getFirst("x"));
-			int y = Integer.parseInt(params.getFirst("y"));
-			int zoom = Integer.parseInt(params.getFirst("z"));
+			Map<String, String> params = getParameterMap(parts[1]);
+			int x = Integer.parseInt(params.get("x"));
+			int y = Integer.parseInt(params.get("y"));
+			int zoom = Integer.parseInt(params.get("zoom"));
 			tile = new Tile(x, y, zoom);
 			tile.setType(type);
 			tile.setMimeType("image/png");
@@ -64,41 +59,6 @@ public class GoogleCache extends AbstractTileCache {
 		
 		return tile;
 	}
-
-	/**
-	 * Get de Tile url on google map tile server
-	 * @param tile
-	 * @return a String with url of tile in google map servers
-	 */
-	public URL getTileUrl(Tile tile) {
-		int x = tile.getX();
-		int y = tile.getY();
-		int zoom = tile.getZoom();
-		String type = tile.getType();
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append(getServerUrl());
-		sb.append("/");
-		sb.append(type);
-		sb.append("/x=");
-		sb.append(x);
-		sb.append("&y=");
-		sb.append(y);
-		sb.append("&zoom=");
-		sb.append(zoom);
-		String url = sb.toString();
-
-		if (log.isDebugEnabled())
-			log.debug("Parsed url to: " + url);
-
-		try {
-			return new URL(url);
-		} catch (MalformedURLException e) {
-			log.error(e);
-			return null;
-		}
-	}
-	
 	
 	/**
 	 * {@inheritDoc}

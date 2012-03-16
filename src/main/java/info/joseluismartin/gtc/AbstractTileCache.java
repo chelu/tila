@@ -28,6 +28,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Abstract implementation of TileCache interface.
@@ -173,6 +175,19 @@ public abstract class AbstractTileCache implements TileCache {
 	public InputStream parseResponse(InputStream serverStream, String remoteUri, String localUri) throws IOException {
 		return serverStream;
 	}
+	
+	/**
+	 * Create a parameter map from a query string
+	 * @param uri the query string
+	 * @return a map with parameters
+	 */
+	protected Map<String, String> getParameterMap(String uri) {
+		UriComponentsBuilder b = UriComponentsBuilder.newInstance();
+		b.query(uri);
+		UriComponents c = b.build();
+		return c.getQueryParams().toSingleValueMap();
+	}
+	
 
 	/**
 	 * @return the path
