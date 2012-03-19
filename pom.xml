@@ -96,12 +96,10 @@
 		<repository>
 			<id>jdal</id>
 			<url>http://www.jdal.org/repo</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
+		</repository>
+		<repository>
+   			<id>vaadin-addons</id>
+   			<url>http://maven.vaadin.com/vaadin-addons</url>
 		</repository>
 	</repositories>
 
@@ -160,6 +158,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>3.1.0.RELEASE</version>
+		</dependency>
+		<dependency>
+   			<groupId>org.vaadin.vol</groupId>
+   			<artifactId>openlayers-wrapper</artifactId>
+   			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	
