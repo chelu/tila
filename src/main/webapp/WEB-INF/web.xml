@@ -22,7 +22,7 @@
 
 	<servlet>
 		<servlet-name>Admin</servlet-name>
-		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+		<servlet-class>info.joseluismartin.gtc.admin.AdminServlet</servlet-class>
 		<init-param>
 			<description>Tila Cache Server Administration</description>
 			<param-name>application</param-name>

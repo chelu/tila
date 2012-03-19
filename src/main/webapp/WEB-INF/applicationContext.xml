@@ -116,14 +116,13 @@
 	
 	<bean id="mapnikCache" class="info.joseluismartin.gtc.MapnikCache" scope="prototype"/>
 	
-	<bean id="tmsCache" class="info.joseluismartin.gtc.TmsCache" scope="prototype "/>
+	<bean id="tmsCache" class="info.joseluismartin.gtc.TmsCache" scope="prototype"/>
 	
 	<bean id="wmsCache" class="info.joseluismartin.gtc.WmsCache" scope="prototype" />
 	
 	<bean id="systemConfig" class="info.joseluismartin.gtc.model.SystemConfig" />
 
 	<!-- UI Widgets -->
-   
    <bean id="guiFactory" class="info.joseluismartin.gtc.admin.TilaGuiFactory" />
    
    <bean id="comboBoxFieldBuilder" class="info.joseluismartin.vaadin.ui.form.ComboBoxFieldBuilder">
@@ -191,7 +190,7 @@
 					<property name="displayName" value="Url" />
 					<property name="align" value="b" />
 					<property name="sortable" value="true" />
-					<property name="width" value="200" />
+					<property name="width" value="250" />
 				</bean>
 				<bean class="info.joseluismartin.vaadin.ui.table.Column">
 					<property name="name" value="type" />
@@ -200,6 +199,12 @@
 					<property name="sortable" value="true" />
 					<property name="sortPropertyName" value="name" />
 					<property name="width" value="150" />
+				</bean>
+				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+					<property name="name" value="age" />
+					<property name="displayName" value="Age" />
+					<property name="align" value="c" />
+					<property name="sortable" value="true" />
 				</bean>
 				<bean class="info.joseluismartin.vaadin.ui.table.Column">
 					<property name="name" value="active" />
@@ -221,29 +226,60 @@
 		<property name="editor" value="cacheEditor" />
 	</bean>
 	
+	<!-- CacheManager Aware SaveAction list -->
+	<util:list id="cacheFormActions" scope="prototype">
+		<bean class="info.joseluismartin.gtc.admin.CacheSaveAction"
+			p:caption="Save" p:icon="images/ok.png" />
+		
+		<bean class="info.joseluismartin.vaadin.ui.form.CancelAction"
+					p:caption="Cancel" p:icon="images/cancel.png" />
+	
+	</util:list>
+	
 	<!-- Cache Form Editor -->
-	<bean id="cacheEditor" class="com.vaadin.ui.Form" scope="prototype">
-		<property name="visibleItemProperties" value="#{ { 'name', 'type', 'path','url','active', 'size' } }" />
-		<property name="formFieldFactory">
-			<bean class="info.joseluismartin.vaadin.ui.form.AnnotationFieldFactory">
-				<property name="fieldProcessors">
-					<list>
-						<bean class="info.joseluismartin.vaadin.ui.form.SizeFieldProcessor">
-							<property name="defaultWidth" value="400px" />
-						</bean>
-					</list>
-				</property>
-			</bean>
-		</property>
+	<bean id="cacheEditor" class="info.joseluismartin.vaadin.ui.form.FormEditor" scope="prototype">
+		<property name="visibleItemProperties" value="#{ { 'name', 'type', 'path','url','active', 'size', 'age' } }" />
+		<property name="actions" ref="cacheFormActions" />
+		<property name="formFieldFactory" ref="defaultFieldFactory" />
+		<property name="persistentService" ref="cacheService" />
 	</bean>
 
-	<bean id="proxyEditor" class="info.joseluismartin.gtc.admin.ProxyForm">
+	<!-- Proxy Form Editor -->
+	<bean id="proxyEditor" class="info.joseluismartin.gtc.admin.ProxyForm" scope="prototype">
 		<property name="proxyService" ref="proxyService" />
-		<property name="fieldFactory" ref="defaultFieldFactory" />
+		<property name="formFieldFactory" ref="defaultFieldFactory" />
 	</bean>
-
+	
+	<bean id="systemItem" class="com.vaadin.data.util.BeanItem">
+		<constructor-arg ref="systemConfig" />
+	</bean>	
+	
+	<!-- System Config Editor -->
+	<bean id="configEditor" class="info.joseluismartin.vaadin.ui.form.FormEditor" scope="prototype">
+		<property name="persistentService" ref="persistentService" />
+		<property name="actions">
+			<list>
+				<bean class="info.joseluismartin.gtc.admin.ConfigSaveAction"
+					p:caption="Save" p:icon="images/ok.png" />
+			
+				<bean class="info.joseluismartin.vaadin.ui.form.CancelAction"
+					p:caption="Cancel" p:icon="images/cancel.png" />
+			</list>
+		</property>
+		<property name="formFieldFactory" ref="defaultFieldFactory" />
+		<property name="itemDataSource" ref="systemItem" />
+	</bean>
+	
+	<!-- Type Editor -->
+	<bean id="typeEditor" class="info.joseluismartin.vaadin.ui.form.FormEditor" scope="prototype">
+		<property name="visibleItemProperties" value="#{ { 'name', 'beanName' } }" />
+		<property name="actions" ref="cacheFormActions" />
+		<property name="formFieldFactory" ref="defaultFieldFactory" />
+	</bean>
+	
+	<!-- Default FormFieldFactory -->
 	<bean id="defaultFieldFactory"
-		class="info.joseluismartin.vaadin.ui.form.ConfigurableFieldFactory">
+		class="info.joseluismartin.vaadin.ui.form.AnnotationFieldFactory">
 		<property name="idClassMap">
 			<map>
 				<entry key="password" value="com.vaadin.ui.PasswordField" />
@@ -263,30 +299,11 @@
 		</property>
 	</bean>
 	
-	<bean id="configForm" class="com.vaadin.ui.Form" scope="prototype">
-			<property name="formFieldFactory" ref="defaultFieldFactory" />
-			<property name="itemDataSource" ref="systemItem" />
+	<bean id="mapViewer" class="info.joseluismartin.gtc.admin.MapViewer">
+		<constructor-arg value="map" />
 	</bean>
 	
-
-	<bean id="systemItem" class="com.vaadin.data.util.BeanItem">
-		<constructor-arg ref="systemConfig" />
-	</bean>	
-	
-	<bean id="configFormEditor" class="info.joseluismartin.vaadin.ui.form.FormEditor">
-		<property name="persistentService" ref="persistentService" />
-		<property name="form" ref="configForm" />
-		<property name="actions">
-			<list>
-				<bean class="info.joseluismartin.gtc.admin.ConfigSaveAction"
-					p:caption="Save" p:icon="images/ok.png" />
-				<bean class="info.joseluismartin.vaadin.ui.form.CancelAction"
-					p:caption="Cancel" p:icon="images/cancel.png" />
-			</list>
-		</property>
-	</bean>
-	
-	
+	<!-- Paginator for Pageable Tables -->
 	<bean id="paginator" class="info.joseluismartin.vaadin.ui.table.VaadinPaginator"
 		scope="prototype">
 		<property name="first" ref="paginatorFirstButton" />
@@ -322,6 +339,7 @@
 		<property name="actions" ref="actionList" />
 		<property name="entityClass" value="info.joseluismartin.gtc.model.CacheType" />
 		<property name="formFieldFactory" ref="defaultFieldFactory" />
+		<property name="editor" value="typeEditor" />
 	</bean>
 	
 	<bean id="typeConfigurableTable" class="info.joseluismartin.vaadin.ui.table.ConfigurableTable" scope="prototype">
@@ -340,6 +358,7 @@
 			</list>
 		</property>
 	</bean>
+
 		
 	<bean id="main" class="info.joseluismartin.vaadin.ui.ListPane" scope="prototype" >
 		<property name="components">
@@ -357,16 +376,18 @@
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/system.png"
 					p:name="System"
-					p:component-ref="configFormEditor" />
+					p:component-ref="configEditor" />
 			
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/types.png"
 					p:name="Cache Types"
 					p:component-ref="typeTable"/>
+			
+				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
+					p:icon="images/types.png"
+					p:name="Map Viewer"
+					p:component-ref="mapViewer"/>
 			</list>
-			
-			
-			
 		</property>
 	</bean>
 	
