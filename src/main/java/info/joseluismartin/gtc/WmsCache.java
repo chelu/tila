@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.MultiValueMap;
@@ -112,22 +113,37 @@ public class WmsCache  extends AbstractTileCache {
 	protected String getCachePath(Tile tile) {
 		WmsTile t = (WmsTile) tile;
 		Bbox b = t.getBbox();
-		int left =  180 + (int) Math.floor(b.getLeft());
-		int up =  180 + (int) Math.floor(b.getUp());
+//		int left =  180 + (int) Math.floor(b.getLeft());
+//		int up =  180 + (int) Math.floor(b.getUp());
 		int right = 180 +  (int)  Math.floor(b.getRight());
 		int down = 180 + (int)  Math.floor(b.getDown());
 		
-		String path = getCachePath() + File.separator + getPath();
-
-		path += File.separator + t.getSrs() + File.separator + 
-				File.separator + t.getStyles() + File.separator + t.getLayers() +
-				File.separator + left + File.separator + up +
-				File.separator + right + File.separator + down +
-				File.separator + Integer.toHexString((t.getBbox().hashCode())) + "_" + (t.isTransparent() ? "t" : "o") +
-				"." + t.getFileExension();
-				
-
-		return path;
+		
+		
+		StringBuilder sb = new StringBuilder ();
+		sb.append(getCachePath());
+		sb.append(File.separator);
+		sb.append(getPath());
+		sb.append(File.separator);
+		sb.append(t.getSrs());
+		sb.append(File.separator);
+		if (!StringUtils.isBlank(t.getStyles()))
+			sb.append(t.getStyles());
+		sb.append(File.separator);
+		if (!StringUtils.isBlank(t.getLayers()))
+			sb.append(t.getLayers());
+		sb.append(File.separator);
+		sb.append(right);
+		sb.append(File.separator);
+		sb.append(down);
+		sb.append(File.separator);
+		sb.append(Integer.toHexString((t.getBbox().hashCode())));
+		sb.append("_");
+		sb.append(t.isTransparent() ? "t" : "o");
+		sb.append(".");
+		sb.append(t.getFileExension());
+		
+		return sb.toString();
 	}
 	
 }

@@ -50,6 +50,8 @@ public class CacheConfig implements Serializable {
 	private CacheType type;
 	@Transient
 	private String diskCachePath = "";
+	/** age of cache on days */
+	private int age;
 
 	/**
 	 * @return the id
@@ -161,5 +163,19 @@ public class CacheConfig implements Serializable {
 	 */
 	public void setDiskCachePath(String diskCachePath) {
 		this.diskCachePath = diskCachePath;
+	}
+
+	/**
+	 * @return the age
+	 */
+	public int getAge() {
+		return age;
+	}
+
+	/**
+	 * @param age the age to set
+	 */
+	public void setAge(int age) {
+		this.age = age;
 	}
 }

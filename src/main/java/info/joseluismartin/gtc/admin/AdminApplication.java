@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.vaadin.Application;
+import com.vaadin.Application.WindowAttachListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomLayout;
@@ -30,7 +31,7 @@ import com.vaadin.ui.Window;
  * 
  * @author Jose Luis Martin - (jlm@joseluismartin.info)
  */
-public class AdminApplication  extends Application {
+public class AdminApplication  extends Application  {
 	
 	private ApplicationContext ctx; 
 	private TilaGuiFactory guiFactory;
@@ -52,10 +53,7 @@ public class AdminApplication  extends Application {
 		cl.setSizeFull();
 		mainWindow.setContent(cl);
 		setMainWindow(mainWindow);
-		
-		configureCacheTable();
 	}
 
-	private void configureCacheTable() {
-	}
+	
 }

@@ -23,8 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.Lifecycle;
 
 /**
+ * Lifecycle Spring listener to close Derby database connectins.
+ * 
  * @author Jose Luis Martin - (jlm@joseluismartin.info)
- *
  */
 public class EmbeddedDerbyShutdown implements Lifecycle {
 

@@ -19,30 +19,36 @@ import info.joseluismartin.gtc.CacheManager;
 import info.joseluismartin.gtc.GoogleCache;
 import info.joseluismartin.gtc.Tile;
 import info.joseluismartin.gtc.TileCache;
+import info.joseluismartin.gtc.model.ProxyConfig;
+import info.joseluismartin.service.PersistentService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
  * @author Jose Luis Martin - (jlm@joseluismartin.info)
@@ -68,10 +74,13 @@ public class CacheController {
 	private String proxyUser;
 	private String proxyPassword;
 	private String proxyHost;
-	private String proxyPort;
+	private int proxyPort;
 	private Proxy proxy = Proxy.NO_PROXY;
 	@Autowired
 	private CacheManager cacheService;
+	@Resource 
+	private PersistentService<ProxyConfig, Integer> proxyService;
+	
 	private Pattern URI_PATTERN = Pattern.compile("/([a-z-]+)/?(.*)");
 
 
@@ -83,48 +92,48 @@ public class CacheController {
 	 */
 	@RequestMapping("/**")
 	protected void handle(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-
-		String requestUri = req.getRequestURI();
+		
+		UrlPathHelper pathHelper = new UrlPathHelper();
+		String requestString = pathHelper.getPathWithinApplication(req);
+		
+		if (requestString == null)
+			throw new ServletException("The request must include a cache path");
+			
 		
 		if (req.getQueryString() != null) 
-			requestUri += "?" + req.getQueryString();
-	
-		String contextPath = req.getContextPath();
-		String servletPath = req.getServletPath();
-		String requestPart = StringUtils.substringAfter(requestUri, contextPath);
-		String query = null;
+			requestString += "?" + req.getQueryString();
+		
 		String cachePath = null;
-		Matcher m  = URI_PATTERN.matcher(requestPart);
-		TileCache cache = null;
-		Tile tile = null;
-
+		String query = null;
+		Matcher m  = URI_PATTERN.matcher(requestString);
+		
 		if (m.find()) {
 			cachePath = m.group(1);
-			query = m.group(2);
-			cache = getTileCache(cachePath);
+			query = pathHelper.decodeRequestString(req, m.group(2));
 		}
-		
+
+		TileCache cache = cacheService.findCache(cachePath);
+
 		if (cache == null) {
-			throw new ServletException("There are not tile cache configured for path [" + "cachePath" + "]");
+			throw new ServletException("There is not tile cache configured for path [" + cachePath + "]");
 		}
-		
 		
 		// Have a cache to handle request, now test the tile
-		tile = cache.getTile(query);
+		Tile tile = cache.getTile(query);
 		
-		String remoteUrlString = cache.getServerUrl() + "/" + query;
+		String remoteUrlString = cache.getServerUrl(query) + 
+				(query.startsWith("?") ? query :  "/" + query);
 		URL remoteUrl = new URL(remoteUrlString);
 		
-		if (tile == null) {
+		if (tile == null) {  // Null tile, proxy the connection to remote server
 			if (log.isDebugEnabled()) {
-				log.debug("Can't parse tile url [" + requestUri +"], proxy to:" + remoteUrlString);
+				log.debug("Can't parse tile url [" + requestString +"], proxy to:" + remoteUrlString);
 			}
 			InputStream is = cache.parseResponse(getServerStream(remoteUrl), remoteUrlString, getContextUrl(req) );
 			IOUtils.copy(is, resp.getOutputStream());
 		}
-		else {
-			if (tile.isEmpty()) {
-
+		else {  
+			if (tile.isEmpty()) {  
 				// try three times...
 				for (int i= 0; i < 3; i++) {
 					try {
@@ -205,34 +214,23 @@ public class CacheController {
 	}	
 
 
-	//	public void init() throws ServletException {
-	//		cachePath = getInitParameter("cachePath");
-	//		google.setCachePath(cachePath + "/google");
-	//		mapnik.setCachePath(cachePath + "/mapnik/tiles");
-	//		
-	//		String tileServer = getInitParameter("tileServer");
-	//		if (tileServer != null) {
-	//			mapnik.setTileServer(tileServer);
-	//		}
-	//		
-	//		useProxy = "true".equalsIgnoreCase(getInitParameter("useProxy"));
-	//
-	//		if (useProxy) {
-	//			proxyHost = getInitParameter("proxyHost");
-	//			proxyPort = getInitParameter("proxyPort");
-	//			proxyUser = getInitParameter("proxyUser");
-	//			proxyPassword = getInitParameter("proxyPassword");
-	//
-	//			SocketAddress address = new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort));
-	//			proxy = new Proxy(Proxy.Type.HTTP, address);
-	//			Authenticator.setDefault(new SimpleAuthenticator(proxyUser, proxyPassword));
-	//
-	//			log.info("Using proxy: " + proxyHost + ":" + proxyPort);
-	//		}
-	//		else {
-	//			proxy = Proxy.NO_PROXY;
-	//		}
-	//	}
+	public void init() throws ServletException {
+		List<ProxyConfig> list = proxyService.getAll();
+		
+		if (!list.isEmpty()) {
+			ProxyConfig config = list.get(0);
+			if (!config.isDirectConnection()) {
+				proxyHost = config.getHost();
+				proxyPort = config.getPort();
+				proxyUser = config.getUserName();
+				proxyPassword = config.getPassword();
+				SocketAddress address = new InetSocketAddress(proxyHost,proxyPort);
+				proxy = new Proxy(Proxy.Type.HTTP, address);
+				Authenticator.setDefault(new SimpleAuthenticator(proxyUser, proxyPassword));
+				log.info("Using proxy: " + proxyHost + ":" + proxyPort);
+			}
+		}
+	}
 }
 
 /**

@@ -17,6 +17,7 @@ package info.joseluismartin.gtc;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -40,18 +41,24 @@ public class GoogleCache extends AbstractTileCache {
 	 */
 	protected Tile parseTile(String path) {
 		Tile tile = null;
-		if (path.startsWith("?"))
-				path = path.substring(1);
+
 		try {
 			String[] parts = path.split("/");
 			String type = parts[0];
 			Map<String, String> params = getParameterMap(parts[1]);
 			int x = Integer.parseInt(params.get("x"));
 			int y = Integer.parseInt(params.get("y"));
-			int zoom = Integer.parseInt(params.get("zoom"));
+			int zoom;
+			
+			if (params.containsKey("z"))
+				zoom = Integer.parseInt(params.get("z"));
+			else
+				zoom = Integer.parseInt(params.get("zoom"));
+			
 			tile = new Tile(x, y, zoom);
 			tile.setType(type);
 			tile.setMimeType("image/png");
+			tile.setLayer(params.get("lyrs"));
 		}
 		catch (Exception e) {
 			log.error(e);
@@ -63,9 +70,12 @@ public class GoogleCache extends AbstractTileCache {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getServerUrl() {
+	public String getServerUrl(String query) {
+		String path = StringUtils.substringBefore(query, "/");
+		String server = path.equals("vt") ? "mt" : "kh";
 		StringBuilder sb = new StringBuilder();
-		sb.append("http://mt");
+		sb.append("http://");
+		sb.append(server);
 		sb.append(this.serverIndex++);
 		sb.append(".google.com");
 		

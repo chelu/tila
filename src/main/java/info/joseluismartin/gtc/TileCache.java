@@ -48,10 +48,16 @@ public interface TileCache {
 	void setConfig(CacheConfig config);
 	
 	/**
-	 * Gets server Url
+	 * Gets the server url that it is caching
 	 */
 	String getServerUrl();
 
+	/**
+	 * Gets server url that it is caching for this query string
+	 * @param query request part after the configured cachePath including query string
+	 */
+	String getServerUrl(String query);
+	
 	/**
 	 * Let caches to modify response from remote server.
 	 * @param serverStream remote server inputStream

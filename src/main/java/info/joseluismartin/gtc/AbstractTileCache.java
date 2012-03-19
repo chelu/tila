@@ -20,6 +20,7 @@ import info.joseluismartin.gtc.model.CacheConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 
@@ -45,6 +46,7 @@ public abstract class AbstractTileCache implements TileCache {
 	private String name;
 	private String serverUrl;
 	private String path;
+	private int age;
 	
 	public Tile getTile(String uri) {
 		
@@ -86,9 +88,13 @@ public abstract class AbstractTileCache implements TileCache {
 	
 	public boolean isTileCached(Tile tile) {
 		File file = new File(getCachePath(tile));
-		return file.exists();
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DAY_OF_YEAR, -age);
+		
+		return file.exists() && file.lastModified()  < calendar.getTimeInMillis();
 	}
-	
+
+
 	/**
 	 * @return File path of a tile in disk cache
 	 */
@@ -96,7 +102,7 @@ public abstract class AbstractTileCache implements TileCache {
 	  {
 	    int x = tile.getX();
 	    int y = tile.getY();
-	    int zoom = tile.getZoom();
+	    int zoom = tile.getZoom() + 2;
 	    String type = tile.getType();
 	    String layer = tile.getLayer();
 	    
@@ -106,7 +112,7 @@ public abstract class AbstractTileCache implements TileCache {
 	    }
 	    
 	    if (!StringUtils.isBlank(layer)) {
-	    	path += File.separator + type;
+	    	path += File.separator + Integer.toHexString(layer.hashCode());
 	    }
 	    
 	    path += File.separator + zoom + File.separator + x / 1024 + 
@@ -138,6 +144,7 @@ public abstract class AbstractTileCache implements TileCache {
 		this.serverUrl = config.getUrl();
 		this.cachePath = config.getDiskCachePath();
 		this.path = config.getPath();
+		this.age = config.getAge();
 	}
 
 	/**
@@ -158,6 +165,10 @@ public abstract class AbstractTileCache implements TileCache {
 	 * @return the serverUrl
 	 */
 	public String getServerUrl() {
+		return serverUrl;
+	}
+	
+	public String getServerUrl(String query) {
 		return serverUrl;
 	}
 
@@ -201,6 +212,20 @@ public abstract class AbstractTileCache implements TileCache {
 	 */
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	/**
+	 * @return the age
+	 */
+	public int getAge() {
+		return age;
+	}
+
+	/**
+	 * @param age the age to set
+	 */
+	public void setAge(int age) {
+		this.age = age;
 	}
 
 }

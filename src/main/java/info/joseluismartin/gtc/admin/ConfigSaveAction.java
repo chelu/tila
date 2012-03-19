@@ -31,9 +31,9 @@ public class ConfigSaveAction extends SaveAction {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void buttonClick(ClickEvent event) {
-		FormEditor editor = (FormEditor) getEditor();
-		editor.getForm().commit();
-		BeanItem<SystemConfig> item = (BeanItem<SystemConfig>) editor.getForm().getItemDataSource();
+		FormEditor editor = (FormEditor) getForm();
+		editor.commit();
+		BeanItem<SystemConfig> item = (BeanItem<SystemConfig>) editor.getItemDataSource();
 		item.getBean().save();
 	}
 }

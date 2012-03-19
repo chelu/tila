@@ -45,7 +45,7 @@ public class TmsCache extends AbstractTileCache {
 			String map = parts[1];
 			int  zoom = Integer.parseInt(parts[2]);
 			int x = Integer.parseInt(parts[3]);
-			String[] file = parts[4].split(".");
+			String[] file = parts[4].split("\\.");
 			int y = Integer.parseInt(file[0]);
 			String mimeType = "image/" + file[1];
 			
