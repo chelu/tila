@@ -24,23 +24,29 @@
 		</property>
 	</bean>
 
-	<!-- DataSource -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+	</bean>
+	
+	<!-- DataSource - Not working well.
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
 		<property name="driverClass" value="${jdbc.driverClassName}" />
 		<property name="jdbcUrl" value="${jdbc.url}" />
-		<property name="acquireIncrement" value="3" />
+		<property name="acquireIncrement" value="1" />
 		<property name="minPoolSize" value="1" />
 		<property name="maxPoolSize" value="5" />
 		<property name="maxIdleTime" value="5" />
-		<property name="numHelperThreads" value="1" />
+		<property name="numHelperThreads" value="3" />
 
 		<property name="idleConnectionTestPeriod" value="10" />
 		<property name="autoCommitOnClose" value="false" />
-		<property name="preferredTestQuery" value="select 1" />
+		<property name="preferredTestQuery" value="select port from proxy" />
 		<property name="testConnectionOnCheckin" value="true" />
 
 		<property name="checkoutTimeout" value="60000" />
 	</bean>
+	-->
 	
      <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
       <property name="dataSource" ref="dataSource"/>
@@ -299,9 +305,9 @@
 		</property>
 	</bean>
 	
-	<bean id="mapViewer" class="info.joseluismartin.gtc.admin.MapViewer">
+	<!-- <bean id="mapViewer" class="info.joseluismartin.gtc.admin.MapViewer">
 		<constructor-arg value="map" />
-	</bean>
+	</bean> -->
 	
 	<!-- Paginator for Pageable Tables -->
 	<bean id="paginator" class="info.joseluismartin.vaadin.ui.table.VaadinPaginator"
@@ -376,22 +382,22 @@
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/system.png"
 					p:name="System"
-					p:component-ref="configEditor" />
+					p:component-ref="configEditor"/>
 			
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/types.png"
 					p:name="Cache Types"
-					p:component-ref="typeTable"/>
-			
+					p:component-ref="typeTable" />
+			<!-- 
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/map.png"
 					p:name="Map Viewer"
-					p:component-ref="mapControl"/>
-			</list>
+					p:component-ref="mapControl"/> -->
+			</list> 
 		</property>
 	</bean>
 	
-	<bean id="mapControl" class="info.joseluismartin.gtc.admin.MapControl" />
+	<!-- <bean id="mapControl" class="info.joseluismartin.gtc.admin.MapControl" /> -->
 	
 	<!-- Property Editors -->
 	<bean id="customEditorConfigurer"
