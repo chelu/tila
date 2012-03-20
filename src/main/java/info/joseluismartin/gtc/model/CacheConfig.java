@@ -52,6 +52,10 @@ public class CacheConfig implements Serializable {
 	private String diskCachePath = "";
 	/** age of cache on days */
 	private int age;
+	
+	public String toString() {
+		return name;
+	}
 
 	/**
 	 * @return the id

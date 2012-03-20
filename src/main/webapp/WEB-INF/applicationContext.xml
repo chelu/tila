@@ -384,12 +384,14 @@
 					p:component-ref="typeTable"/>
 			
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
-					p:icon="images/types.png"
+					p:icon="images/map.png"
 					p:name="Map Viewer"
-					p:component-ref="mapViewer"/>
+					p:component-ref="mapControl"/>
 			</list>
 		</property>
 	</bean>
+	
+	<bean id="mapControl" class="info.joseluismartin.gtc.admin.MapControl" />
 	
 	<!-- Property Editors -->
 	<bean id="customEditorConfigurer"

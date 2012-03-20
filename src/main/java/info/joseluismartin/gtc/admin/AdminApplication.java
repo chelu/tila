@@ -15,11 +15,12 @@
  */
 package info.joseluismartin.gtc.admin;
 
+import net.sf.ehcache.util.SetWrapperList;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.vaadin.Application;
-import com.vaadin.Application.WindowAttachListener;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomLayout;

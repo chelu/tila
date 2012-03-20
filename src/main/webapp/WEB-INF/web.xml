@@ -28,6 +28,10 @@
 			<param-name>application</param-name>
 			<param-value>info.joseluismartin.gtc.admin.AdminApplication</param-value>
 		</init-param>
+		<init-param>
+		 <param-name>widgetset</param-name>
+   		 <param-value>info.joseluismartin.gtc.gwt.tila</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Admin</servlet-name>

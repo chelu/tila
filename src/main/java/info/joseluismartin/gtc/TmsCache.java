@@ -16,7 +16,10 @@
 package info.joseluismartin.gtc;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,9 +80,21 @@ public class TmsCache extends AbstractTileCache {
 		    path += File.separator + ((TmsTile) tile).getMap();
 		    path += File.separator + zoom + File.separator + x / 1024 + 
 		    		File.separator + x % 1024 + File.separator + y / 1024 + 
-		    		File.separator + y % 1024 + ".png";
+		    		File.separator + y % 1024 + tile.getFileExension();
 		    
 		    return path;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public InputStream parseResponse(InputStream serverStream, String remoteUri, String localUri) throws IOException {
+		String response = IOUtils.toString(serverStream);
+		response = response.replaceAll(getServerUrl(), localUri + "/" + getPath());
+		
+		return IOUtils.toInputStream(response);
 	}
 
 }

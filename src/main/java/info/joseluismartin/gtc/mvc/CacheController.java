@@ -67,7 +67,7 @@ public class CacheController {
 
 	private static final long serialVersionUID = 1L;
 
-	private final static Log log = LogFactory.getLog(GoogleCache.class);
+	private final static Log log = LogFactory.getLog(CacheController.class);
 
 	private String diskCachePath;
 	private boolean useProxy;
