@@ -5,16 +5,16 @@
 	<artifactId>tila</artifactId>
 	<packaging>war</packaging>
 	<name>tila</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<description>Tile Cache Server for WMS and Google Maps</description>
 	<organization>
-		<name>Jose Luis Martín</name>
-		<url>www.joseluismartin.info/tila</url>
+		<name>Jose Luis Martin</name>
+		<url>http://www.joseluismartin.info/tila</url>
 	</organization>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vaadin.version>6.6.0</vaadin.version>
+		<vaadin.version>6.7.5</vaadin.version>
 		<jdal.version>1.1-SNAPSHOT</jdal.version>
 		<gwt.version>2.3.0</gwt.version>
 		<gwt.plugin.version>2.2.0</gwt.plugin.version>
@@ -83,16 +83,6 @@
 	</build>
 
 	<repositories>
-		<repository>
-			<releases>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<checksumPolicy>ignore</checksumPolicy>
-			</snapshots>
-			<id>jlm</id>
-			<url>http://joseluismartin.info:8081/artifactory/repo</url>
-		</repository>
 		<repository>
 			<id>jdal</id>
 			<url>http://www.jdal.org/repo</url>
@@ -174,11 +164,6 @@
 			<artifactId>openlayers-wrapper</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-user</artifactId>
-			<version>2.4.0</version>
-		</dependency> -->
 	</dependencies>
 
 	<dependencyManagement>
