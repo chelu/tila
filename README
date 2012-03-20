@@ -8,27 +8,31 @@ by storing tiles on your LAN.
 
 Tila is still on development but downloable versions are usable.
 
-For version 0.0.2 Tila support the folowing caches:
+For version 0.1.1 Tila support the folowing caches:
 
  - GoogleMaps 
  - Open Street Map
  - TMS
- - WMS (Experimental)
+ - WMS 
  - WTMS 
  
  INSTALL:
  -------------------------------------------------------------------------------- 
  
-Download de latest zip file from the download area and deploy tila-version.war it 
-on your application server. I'm only tested it on Tomcat 6. 
+Download de latest war file from the download area and deploy tila-version.war it 
+on your application server. (I'm only tested it on Tomcat 6). 
 
-Then  copy derby database to some path on server and edit the file 
-tomcat_root/webapps/tila-version/WEB-INF/jdbc.properties and change the value of
-*path_to_db_directory* in property:
+The derby database is in WEB-INF/db by default to allow a quick start of using 
+the cache server, but if you undeploy de application, all configuration data 
+will be lost.
+
+To change the database location, copy db directory to some path 
+on server and edit the file tomcat_root/webapps/tila-version/WEB-INF/jdbc.properties
+and change the value of   *path_to_db_directory* in property:
  
 jdbc.url = "jdbc:derby:/path_to_db_directory"
 
-Restart application and go to http://yourserver:8080/tila/admin to start the admin application 
+Restart application and go to http://yourserver:8080/tila/admin 
 and set up the tile caches, proxy configuration and cache path in server filesystem.
 
 
