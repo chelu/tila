@@ -72,7 +72,7 @@ public class GoogleCache extends AbstractTileCache {
 	 */
 	public String getServerUrl(String query) {
 		String path = StringUtils.substringBefore(query, "/");
-		String server = path.equals("vt") ? "mt" : "kh";
+		String server = path.equals("vt") ? "mt" : "khm";
 		StringBuilder sb = new StringBuilder();
 		sb.append("http://");
 		sb.append(server);
