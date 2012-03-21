@@ -1,21 +1,21 @@
-TILA - WMS-C and Google Maps Tile Cache Server
+TILA - Maps Tile Cache Server
 --------------------------------------------------------------------------------
 Jose Luis Martin - Jun 2012
 
 Tila (TIles on LAn) is a java tile map cache server.
  
 Tila will solve performance problems in applications using a map tile server 
-by storing tiles on your LAN.
+by storing the tiles on your LAN.
 
 Tila is still on development but downloable versions are usable.
 
 For version 0.1.1 Tila support the folowing caches:
 
- - GoogleMaps 
+ - Google Maps 
  - Open Street Map
- - TMS
- - WMS 
- - WTMS 
+ - TMS  (OSGeo Tile Map Service) 
+ - WMS  (OGC Web Map Service)
+ - WMTS (OGC Web Map Tile Service)
  
  
 The management web application lets you to easily configure the tile caches.
