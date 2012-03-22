@@ -113,10 +113,12 @@ public class WmsCache  extends AbstractTileCache {
 	protected String getCachePath(Tile tile) {
 		WmsTile t = (WmsTile) tile;
 		Bbox b = t.getBbox();
-//		int left =  180 + (int) Math.floor(b.getLeft());
-//		int up =  180 + (int) Math.floor(b.getUp());
-		int right = 180 +  (int)  Math.floor(b.getRight());
-		int down = 180 + (int)  Math.floor(b.getDown());
+		int Z = 100;
+		int P = 18000;
+		int left =  P + (int) Math.floor(b.getLeft()*Z);
+		int up =  P + (int) Math.floor(b.getUp()*Z);
+		int right = P +  (int)  Math.floor(b.getRight()*Z);
+		int down = P + (int)  Math.floor(b.getDown()*Z);
 		
 		
 		
@@ -136,6 +138,10 @@ public class WmsCache  extends AbstractTileCache {
 		sb.append(right);
 		sb.append(File.separator);
 		sb.append(down);
+		sb.append(File.separator);
+		sb.append(left);
+		sb.append(File.separator);
+		sb.append(up);
 		sb.append(File.separator);
 		sb.append(Integer.toHexString((t.getBbox().hashCode())));
 		sb.append("_");

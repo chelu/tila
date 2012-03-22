@@ -126,6 +126,8 @@
 	
 	<bean id="wmsCache" class="info.joseluismartin.gtc.WmsCache" scope="prototype" />
 	
+	<bean id="veCache" class="info.joseluismartin.gtc.VeCache" scope="prototype" />
+	
 	<bean id="systemConfig" class="info.joseluismartin.gtc.model.SystemConfig" />
 
 	<!-- UI Widgets -->

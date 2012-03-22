@@ -57,13 +57,13 @@ public abstract class AbstractTileCache implements TileCache {
 		
 		if (tileMap.containsKey(tile.getKey())) {   // found in memory cache
 			if (log.isDebugEnabled())
-				log.debug("Tile found in memory cache: " + tile.getKey());
+				log.debug(name + ": Tile found in memory cache: " + tile.getKey());
 			tile = (Tile) tileMap.get(tile.getKey());
 		}
 		else {
 			if (isTileCached(tile)) {  // found in disk
 				if (log.isDebugEnabled())
-					log.debug("Tile found in disk cache:" + tile.getKey());
+					log.debug(name + ": Tile found in disk cache:" + tile.getKey());
 				
 				tile.load(getCachePath(tile));
 				// refresh cache with last tile
