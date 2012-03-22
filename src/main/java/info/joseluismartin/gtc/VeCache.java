@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class VeCache extends AbstractTileCache {
 	
-	private static final Log log = LogFactory.getLog(VirtualEarthCache.class);
+	private static final Log log = LogFactory.getLog(VeCache.class);
 	
 	/**
 	 * {@inheritDoc}
@@ -47,6 +47,7 @@ public class VeCache extends AbstractTileCache {
 			Map<String, String> params = getParameterMap(query[1]);
 			int xyz[] = queadToXyz(quad);
 			tile = new VeTile(xyz[0], xyz[1], xyz[2], params.get("g"), params.get("mkt"));
+			tile.setMimeType("image/jpeg");
 		} catch (Exception e) {
 			log.error(e);
 		}

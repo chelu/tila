@@ -24,6 +24,20 @@ public class VeTile extends Tile {
 
 	private String g;
 	private String mkt;
+
+	public VeTile() {
+		super();
+	}
+
+	/**
+	 * @param x
+	 * @param y
+	 * @param zoom
+	 */
+	public VeTile(int x, int y, int zoom) {
+		super(x, y, zoom);
+	}
+
 	/**
 	 * @param x
 	 * @param y
