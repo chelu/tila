@@ -38,12 +38,12 @@ public class VeCache extends AbstractTileCache {
 	protected Tile parseTile(String uri) {
 		Tile tile = null;
 		try {
-			if (!uri.startsWith("/tiles/"))
+			if (!uri.startsWith("tiles/"))
 				return null; // not a VE tile request
 			
-			uri = StringUtils.substringAfter(uri, "/tiles/");
+			uri = StringUtils.substringAfter(uri, "tiles/");
 			String[] query =  uri.split("\\?");
-			String quad = query[0];
+			String quad = query[0].substring(1); // drop 'r'
 			Map<String, String> params = getParameterMap(query[1]);
 			int xyz[] = queadToXyz(quad);
 			tile = new VeTile(xyz[0], xyz[1], xyz[2], params.get("g"), params.get("mkt"));
@@ -66,7 +66,7 @@ public class VeCache extends AbstractTileCache {
         int zoom = quad.length();
         for (int i = zoom; i > 0; i--) {
             int mask = 1 << (i - 1);
-            switch (quad.charAt(zoom - 1)) {
+            switch (quad.charAt(zoom - i)) {
                 case '0':
                     break;
 
