@@ -307,9 +307,9 @@
 		</property>
 	</bean>
 	
-	<!-- <bean id="mapViewer" class="info.joseluismartin.gtc.admin.MapViewer">
+	<bean id="mapViewer" class="info.joseluismartin.gtc.admin.MapViewer">
 		<constructor-arg value="map" />
-	</bean> -->
+	</bean>
 	
 	<!-- Paginator for Pageable Tables -->
 	<bean id="paginator" class="info.joseluismartin.vaadin.ui.table.VaadinPaginator"
@@ -390,11 +390,11 @@
 					p:icon="images/types.png"
 					p:name="Cache Types"
 					p:component-ref="typeTable" />
-			<!-- 
+
 				<bean class="info.joseluismartin.vaadin.ui.VaadinComponentHolder"
 					p:icon="images/map.png"
 					p:name="Map Viewer"
-					p:component-ref="mapControl"/> -->
+					p:component-ref="mapViewer"/>
 			</list> 
 		</property>
 	</bean>

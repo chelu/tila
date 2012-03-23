@@ -20,28 +20,47 @@ import info.joseluismartin.service.PersistentService;
 import info.joseluismartin.vaadin.data.ContainerDataSource;
 import info.joseluismartin.vaadin.ui.ListPane.ListPaneAware;
 
-import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 
+import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItem;
+import com.vaadin.terminal.ThemeResource;
+import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.CustomLayout;
+import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Select;
 
 /**
+ * Map Viewer for cache testing.
+ * 
  * @author Jose Luis Martin - (jlm@joseluismartin.info)
  */
+// TODO: Write a GWT Client Component instead of using executeJavaScript()
 public class MapViewer extends CustomLayout implements ListPaneAware, ValueChangeListener {
 	
 	private static final Log log = LogFactory.getLog(MapViewer.class);
+	// Map Types
+	private static final String TMS = "TMS";
+	private static final String GOOGLE = "Google Maps";
+	// Map Scripts
+	private static final String GOOGLE_MAP_SCRIPT = "VAADIN/js/googleMap.js";
 	@Resource
 	private PersistentService<CacheConfig, Integer> cacheService;
 	private Select cacheSelect = new Select("Tile Caches");
+	private ListSelect layers = new ListSelect("Layers");
 	
-	private String TMS_SCRIPT = "var layer = new OpenLayers.Layer.TMS('My Layer'," +
-				"$url', {layername: 'basic', type: 'png'});";
+	private String TMS_SCRIPT = "var layer = new OpenLayers.Layer.TMS($layerName'," +
+				"$url', {layername: '$layer', type: 'png'});";
 	
 	private String WMS_SCRIPT = "var layer = new OpenLayers.Layers.WMS('$layerName');";
 
@@ -56,9 +75,13 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 		ContainerDataSource<CacheConfig> cds = new ContainerDataSource<CacheConfig>(CacheConfig.class, cacheService);
 		cds.init();
 		cacheSelect.setContainerDataSource(cds);
-		addComponent(cacheSelect, "map-cache-select");
+		cacheSelect.setItemCaptionPropertyId("name");
 		cacheSelect.addListener(this);
-		cacheSelect.setWidth("100px");
+		cacheSelect.setImmediate(true);
+
+		addComponent(cacheSelect, "map-cache-select");
+		addComponent(layers, "map-layer-select");
+		
 	}
 	
 	public void loadMap() {
@@ -81,7 +104,7 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 	 * {@inheritDoc}
 	 */
 	public void show() {
-		loadMap();
+		valueChange(null);
 		
 	}
 
@@ -95,10 +118,51 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	public void valueChange(ValueChangeEvent event) {
-		CacheConfig config = (CacheConfig) cacheSelect.getValue();
-		String js = getMapScript(config);
-		getWindow().executeJavaScript(js);
+		Object itemId = cacheSelect.getValue();
+		
+		if (itemId == null)  // nothing to do
+			return;
+		
+		
+		BeanItem<CacheConfig> item = (BeanItem<CacheConfig>) cacheSelect.getItem(itemId);
+		if (item != null) {
+			CacheConfig cache = item.getBean();
+			String type =  cache.getType().getName();
+			if (TMS.equals(type)) {
+				addTMSLayer(cache);
+			}
+			else if (GOOGLE.equals(type)) {
+				addGoogleMap(cache);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void addGoogleMap(CacheConfig cache) {
+		ServletContext sc = ((WebApplicationContext) getApplication().getContext()).getHttpSession().getServletContext();
+		File file = new File(sc.getRealPath(GOOGLE_MAP_SCRIPT));
+
+		try {
+			String script = FileUtils.readFileToString(file);
+			String url = StringUtils.substringBefore(getApplication().getURL().toString(), "admin");
+			url += cache.getPath();
+			script = script.replace("$tilaGoogleCacheUrl", url);
+			getWindow().executeJavaScript(script);
+		} catch (IOException e) {
+			log.error(e);
+		}
+	}
+
+	/**
+	 * @param cache
+	 */
+	private void addTMSLayer(CacheConfig cache) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**

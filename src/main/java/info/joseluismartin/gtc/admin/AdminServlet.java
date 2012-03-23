@@ -23,8 +23,10 @@ import javax.servlet.http.HttpServletRequest;
 import com.vaadin.terminal.gwt.server.ApplicationServlet;
 
 /**
+ * Tila Application Servlet. Override writeAjaxPageHtmlHeader() to add 
+ * OpenLayer and GoogleMap API.
+ * 
  * @author Jose Luis Martin - (jlm@joseluismartin.info)
- *
  */
 public class AdminServlet extends ApplicationServlet {
 
@@ -35,7 +37,8 @@ public class AdminServlet extends ApplicationServlet {
 	protected void writeAjaxPageHtmlHeader(BufferedWriter page, String title, String themeUri,
 			HttpServletRequest request) throws IOException {
 		super.writeAjaxPageHtmlHeader(page, title, themeUri, request);
-//		page.append("<script src=\"" + themeUri + "/js/OpenLayers.js\"></script>");
+		page.append("<script src=\"" + themeUri + "/js/OpenLayers.js\"></script>");
+		page.append("<script type=\"text/javascript\" src=\"https://maps.google.com/maps/api/js?sensor=false\"></script>");
 	}
 
 }

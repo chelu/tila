@@ -39,9 +39,8 @@ public class VeCache extends AbstractTileCache {
 		Tile tile = null;
 		try {
 			if (!uri.startsWith("tiles/"))
-				return null; // not a VE tile request
-			
-			uri = StringUtils.substringAfter(uri, "tiles/");
+				uri = StringUtils.substringAfter(uri, "tiles/");
+	
 			String[] query =  uri.split("\\?");
 			String quad = query[0].substring(1); // drop 'r'
 			Map<String, String> params = getParameterMap(query[1]);
@@ -57,8 +56,9 @@ public class VeCache extends AbstractTileCache {
 	
 	
 	/**
-	 * @param quad
-	 * @return
+	 * Convert the QuadKey of VE to xyz array
+	 * @param quad quad key to convert
+	 * @return [xyz] array
 	 */
 	private int[] queadToXyz(String quad) {
 		int x = 0;
