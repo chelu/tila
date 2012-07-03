@@ -18,7 +18,7 @@
 	<context-param>
 		<description>Vaadin production mode</description>
 		<param-name>productionMode</param-name>
-		<param-value>true</param-value>
+		<param-value>false</param-value>
 	</context-param>
 	
 	<servlet>
@@ -33,10 +33,6 @@
 			<description>Tila Cache Server Administration</description>
 			<param-name>application</param-name>
 			<param-value>info.joseluismartin.gtc.admin.AdminApplication</param-value>
-		</init-param>
-		<init-param>
-		 	<param-name>widgetset</param-name>
-   		 	<param-value>info.joseluismartin.gtc.gwt.tila</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>

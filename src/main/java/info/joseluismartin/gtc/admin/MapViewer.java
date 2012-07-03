@@ -19,9 +19,11 @@ import info.joseluismartin.gtc.model.CacheConfig;
 import info.joseluismartin.service.PersistentService;
 import info.joseluismartin.vaadin.data.ContainerDataSource;
 import info.joseluismartin.vaadin.ui.ListPane.ListPaneAware;
+import info.joseluismartin.xml.XMLUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -30,11 +32,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.geotools.data.ows.WMSCapabilities;
+import org.geotools.data.wms.WebMapServer;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.terminal.ThemeResource;
 import com.vaadin.terminal.gwt.server.WebApplicationContext;
 import com.vaadin.ui.CustomLayout;
 import com.vaadin.ui.ListSelect;
@@ -52,17 +58,24 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 	// Map Types
 	private static final String TMS = "TMS";
 	private static final String GOOGLE = "Google Maps";
+	private static final String OSM = "Mapnik (OSM)";
+	private static final String WMS = "WMS";
+	private static final String WMTS = "WMTS";
+	private static final String VE = "Virtual Earth";
 	// Map Scripts
 	private static final String GOOGLE_MAP_SCRIPT = "VAADIN/js/googleMap.js";
+	private static final String TMS_MAP_SCRIPT = "VAADIN/js/tmsMap.js";
+	private static final String WMS_MAP_SCRIPT = "VAADIN/js/wmsMap.js";
+	private static final String WMTS_MAP_SCRIPT = "VAADIN/js/wmtsMap.js";
+	private static final String VE_MAP_SCRIPT = "VAADIN/js/veMap.js";
+	private static final String OSM_MAP_SCRIPT = "VAADIN/js/osmMap.js";
+	
 	@Resource
 	private PersistentService<CacheConfig, Integer> cacheService;
 	private Select cacheSelect = new Select("Tile Caches");
 	private ListSelect layers = new ListSelect("Layers");
+	private ListSelect srs = new ListSelect("srs");
 	
-	private String TMS_SCRIPT = "var layer = new OpenLayers.Layer.TMS($layerName'," +
-				"$url', {layername: '$layer', type: 'png'});";
-	
-	private String WMS_SCRIPT = "var layer = new OpenLayers.Layers.WMS('$layerName');";
 
 	/**
 	 * @param template
@@ -78,34 +91,23 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 		cacheSelect.setItemCaptionPropertyId("name");
 		cacheSelect.addListener(this);
 		cacheSelect.setImmediate(true);
+		cacheSelect.setWidth("150px");
+		layers.setWidth("150px");
+		layers.setHeight("450px");
+		layers.setImmediate(true);
+		layers.addListener(new LayerListener());
 
 		addComponent(cacheSelect, "map-cache-select");
 		addComponent(layers, "map-layer-select");
 		
 	}
-	
-	public void loadMap() {
-		getWindow().executeJavaScript(createMapScript());
-	}
-
-	/**
-	 * @return
-	 */
-	private String createMapScript() {
-		String js = "var map = new OpenLayers.Map('map');" + 
-				"var layer = new OpenLayers.Layer.TMS('My Layer'," +
-				"'http://localhost:8080/tila/tms/', {layername: 'basic', type: 'png'});" +
-				"map.addLayer(layer); map.zoomToMaxExtent();";   
-		return js;
-	}
-
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void show() {
-		valueChange(null);
-		
+		if (cacheSelect.getItemIds().size() > 0)
+			cacheSelect.select(cacheSelect.getItemIds().iterator().next());
 	}
 
 	/**
@@ -120,60 +122,241 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 	 */
 	@SuppressWarnings("unchecked")
 	public void valueChange(ValueChangeEvent event) {
+		layers.removeAllItems();
+		
 		Object itemId = cacheSelect.getValue();
 		
 		if (itemId == null)  // nothing to do
 			return;
 		
-		
 		BeanItem<CacheConfig> item = (BeanItem<CacheConfig>) cacheSelect.getItem(itemId);
+		
 		if (item != null) {
 			CacheConfig cache = item.getBean();
 			String type =  cache.getType().getName();
 			if (TMS.equals(type)) {
-				addTMSLayer(cache);
+				addTMSMap(cache);
 			}
 			else if (GOOGLE.equals(type)) {
 				addGoogleMap(cache);
 			}
+			else if (OSM.equals(type)) {
+				addOsmMap(cache);
+			}
+			else if (WMS.equals(type)) {
+				addWmsMap(cache);
+			}
 		}
 	}
 
 	/**
-	 * 
+	 * Execute JS on client to add a WMS layer to OpenLayers Map
+	 * @param cache cache to add as WMS Layer 
+	 */
+	private void addWmsMap(CacheConfig cache) {
+		String script = getScript(WMS_MAP_SCRIPT);
+		if (script != null) {
+			try {
+//			// Get Capabilities
+//			URL url = new URL(getCacheUrl(cache) + "?REQUEST=GetCapabilities");
+//			Document cap  = XMLUtils.getDocumentBuilder().parse(url.openStream());
+//			NodeList nl = cap.getElementsByTagName("LAYER");
+				
+				WebMapServer wms = new WebMapServer(new URL(getCacheUrl(cache)));
+				WMSCapabilities c = wms.getCapabilities();
+				
+			}
+			catch (Exception e) {
+				log.error(e);
+			}
+		}
+		
+	}
+
+	/**
+	 * Execute JS on client to add a OSM Layer to OpenLayer map.
+	 * @param cache cache to add as OSM layer
+	 */
+	private void addOsmMap(CacheConfig cache) {
+		String script = getScript(OSM_MAP_SCRIPT);
+		if (script != null) {
+			String url = getCacheUrl(cache);
+			script = script.replace("$cacheUrl", url);
+			getWindow().executeJavaScript(script);
+		}
+	}
+
+	/**
+	 * Execute a JS on client to create a google map 
+	 * @param cache cache to show in google map.
 	 */
 	private void addGoogleMap(CacheConfig cache) {
-		ServletContext sc = ((WebApplicationContext) getApplication().getContext()).getHttpSession().getServletContext();
-		File file = new File(sc.getRealPath(GOOGLE_MAP_SCRIPT));
+		String script = getScript(GOOGLE_MAP_SCRIPT);
 
-		try {
-			String script = FileUtils.readFileToString(file);
-			String url = StringUtils.substringBefore(getApplication().getURL().toString(), "admin");
-			url += cache.getPath();
+		if (script != null) {
+			String url = getCacheUrl(cache);
 			script = script.replace("$tilaGoogleCacheUrl", url);
 			getWindow().executeJavaScript(script);
-		} catch (IOException e) {
+		} 
+	}
+
+	/**
+	 * Gets the cache url for a cache.
+	 * @param cache cache to create the cache url
+	 * @return Url to access de cache.
+	 */
+	private String getCacheUrl(CacheConfig cache) {
+		String url = StringUtils.substringBefore(getApplication().getURL().toString(), "admin");
+		url += cache.getPath();
+		return url;
+	}
+	
+	/**
+	 * Parse TMS service response and fill layers select.
+	 * @param cache TMS cache to use.
+	 */
+	private void addTMSMap(CacheConfig cache) {
+		URL tmsService;
+		try {
+			tmsService = new URL(getCacheUrl(cache));
+			Document service = XMLUtils.getDocumentBuilder().parse(tmsService.openStream());
+			NodeList nl = service.getElementsByTagName("TileMapService");
+			if (nl.getLength() > 0) {
+				// First service only 
+				Element map = (Element) nl.item(0);
+				URL mapService = new URL(map.getAttribute("href"));
+				Document tileMapService = XMLUtils.getDocumentBuilder().parse(mapService.openStream());
+				NodeList tileMapNodes = tileMapService.getElementsByTagName("TileMap");
+				for (int i = 0; i < tileMapNodes.getLength(); i++) {
+					TileMap tileMap = new TileMap((Element) tileMapNodes.item(i), cache);
+					layers.addItem(tileMap);
+				}
+				
+			}
+		layers.requestRepaint();
+		} catch (Exception e) {
 			log.error(e);
 		}
 	}
-
+	
+	
 	/**
-	 * @param cache
+	 * Get a Script from filesystem
+	 * @param path relative path to context
+	 * @return String with script context or null on IOExceptions
 	 */
-	private void addTMSLayer(CacheConfig cache) {
-		// TODO Auto-generated method stub
+	private String getScript(String path) {
+		String script = null;
 		
-	}
-
-	/**
-	 * @param config
-	 * @return
-	 */
-	private String getMapScript(CacheConfig config) {
-		if (log.isDebugEnabled())
-			log.debug("Selected cache: [" + config.getName() + "]");
+		ServletContext sc = ((WebApplicationContext) getApplication().getContext()).getHttpSession().getServletContext();
+		File file = new File(sc.getRealPath(path));
+		try {
+			script = FileUtils.readFileToString(file);
+		} catch (IOException e) {
+			log.error(e);
+		}
 		
-		return "";
+		return script;
 	}
 	
+	/**
+	 * Hold TileMap info from TMS Service.
+	 * @author Jose Luis Martin - (jlm@joseluismartin.info)
+	 */
+	class TileMap implements MapBuilder {
+		
+		private String href;
+		private String 	srs;
+		private String title;
+		private CacheConfig cache;
+		
+		public TileMap(Element element, CacheConfig cache) {
+			this.href = element.getAttribute("href");
+			this.srs = element.getAttribute("srs");
+			this.title = element.getAttribute("title");
+			this.cache = cache;
+		}
+		
+		/**
+		 * @return the href
+		 */
+		public String getHref() {
+			return href;
+		}
+		
+		/**
+		 * @param href the href to set
+		 */
+		public void setHref(String href) {
+			this.href = href;
+		}
+		
+		/**
+		 * @return the srs
+		 */
+		public String getSrs() {
+			return srs;
+		}
+		
+		/**
+		 * @param srs the srs to set
+		 */
+		public void setSrs(String srs) {
+			this.srs = srs;
+		}
+		
+		/**
+		 * @return the title
+		 */
+		public String getTitle() {
+			return title;
+		}
+		
+		/**
+		 * @param title the title to set
+		 */
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		
+		public String toString() {
+			return title;
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public void buildMap() {
+			String script = getScript(TMS_MAP_SCRIPT);
+			script = script.replace("$cacheUrl", getCacheUrl(cache));
+			script = script.replace("$layerName", title);
+			script = script.replace("$srs", srs);
+			getWindow().executeJavaScript(script);
+		}
+	}
+	
+	/**
+	 * Litener for Layer changes. Build a new map client with selected layer 
+	 * on layer changes. 
+	 * @author Jose Luis Martin - (jlm@joseluismartin.info)
+	 */
+	class LayerListener implements ValueChangeListener {
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public void valueChange(ValueChangeEvent event) {
+			MapBuilder mb = (MapBuilder) layers.getValue();
+			if (mb != null)
+				mb.buildMap();
+		}
+		
+	}
+}
+
+interface MapBuilder {
+	/**
+	 * Build a Map on Client
+	 */
+	void buildMap();
 }

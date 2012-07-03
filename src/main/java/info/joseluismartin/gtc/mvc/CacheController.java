@@ -125,12 +125,8 @@ public class CacheController {
 				(query.startsWith("?") ? query :  "/" + query);
 		URL remoteUrl = new URL(remoteUrlString);
 		
-		if (tile == null) {  // Null tile, proxy the connection to remote server
-			if (log.isDebugEnabled()) {
-				log.debug("Can't parse tile url [" + requestString +"], proxy to:" + remoteUrlString);
-			}
-			InputStream is = cache.parseResponse(getServerStream(remoteUrl), remoteUrlString, getContextUrl(req) );
-			IOUtils.copy(is, resp.getOutputStream());
+		if (tile == null) { 
+			proxyConnection(req, resp, requestString, cache, remoteUrlString, remoteUrl);
 		}
 		else {  
 			if (tile.isEmpty()) {  
@@ -148,6 +144,20 @@ public class CacheController {
 			resp.setContentType(tile.getMimeType());
 			resp.getOutputStream().write(tile.getImage());
 		}
+	}
+
+	private void proxyConnection(HttpServletRequest req, HttpServletResponse resp, String requestString,
+			TileCache cache, String remoteUrlString, URL remoteUrl) throws IOException {
+		if (log.isDebugEnabled()) {
+			log.debug("Can't parse tile url [" + requestString +"], proxy to:" + remoteUrlString);
+		}
+		
+		URLConnection conn = getConnection(remoteUrl);
+		resp.setContentType(conn.getContentType());
+		resp.setContentLength(conn.getContentLength());
+		InputStream is = cache.parseResponse(conn.getInputStream(), remoteUrlString, getContextUrl(req) );
+		IOUtils.copy(is, resp.getOutputStream());
+	
 	}
 
 	/**
@@ -207,10 +217,15 @@ public class CacheController {
 	 * @throws IOException
 	 */
 	private InputStream getServerStream(URL url) throws IOException {
-		URLConnection conn = url.openConnection(proxy);
-		conn.setRequestProperty("User-Agent", USER_AGENT);
+		URLConnection conn = getConnection(url);
 		InputStream is = conn.getInputStream();
 		return is;
+	}
+
+	private URLConnection getConnection(URL url) throws IOException {
+		URLConnection conn = url.openConnection(proxy);
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		return conn;
 	}	
 
 

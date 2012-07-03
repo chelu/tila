@@ -37,7 +37,7 @@ public class AdminServlet extends ApplicationServlet {
 	protected void writeAjaxPageHtmlHeader(BufferedWriter page, String title, String themeUri,
 			HttpServletRequest request) throws IOException {
 		super.writeAjaxPageHtmlHeader(page, title, themeUri, request);
-		page.append("<script src=\"" + themeUri + "/js/OpenLayers.js\"></script>");
+		page.append("<script src='http://openlayers.org/api/OpenLayers.js'></script>");
 		page.append("<script type=\"text/javascript\" src=\"https://maps.google.com/maps/api/js?sensor=false\"></script>");
 	}
 

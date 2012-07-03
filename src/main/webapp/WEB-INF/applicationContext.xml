@@ -173,25 +173,25 @@
 		
 		<property name="columns">
 			<list value-type="info.joseluismartin.vaadin.ui.table.Column">
-				<bean class="info.joseluismartin.vaadin.ui.table.Column">
+				<!-- <bean class="info.joseluismartin.vaadin.ui.table.Column">
 					<property name="name" value="id" />
 					<property name="displayName" value="ID" />
 					<property name="align" value="c" />
 					<property name="sortable" value="true" />
-				</bean>
+				</bean> -->
 				<bean class="info.joseluismartin.vaadin.ui.table.Column">
 					<property name="name" value="name" />
 					<property name="displayName" value="Name" />
 					<property name="align" value="b" />
 					<property name="sortable" value="true" />
-					<property name="width" value="150" />
+					<property name="width" value="100" />
 				</bean>
 				<bean class="info.joseluismartin.vaadin.ui.table.Column">
 					<property name="name" value="path" />
 					<property name="displayName" value="Path" />
 					<property name="align" value="b" />
 					<property name="sortable" value="true" />
-					<property name="width" value="150" />
+					<property name="width" value="100" />
 				</bean>
 				<bean class="info.joseluismartin.vaadin.ui.table.Column">
 					<property name="name" value="url" />

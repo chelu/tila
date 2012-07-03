@@ -160,9 +160,9 @@
 			<version>3.1.0.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.vaadin.vol</groupId>
-			<artifactId>openlayers-wrapper</artifactId>
-			<version>1.0.0</version>
+  			<groupId>org.geotools</groupId>
+  			<artifactId>gt-wms</artifactId>
+  			<version>2.7.4</version>
 		</dependency>
 	</dependencies>
 
