@@ -19,11 +19,9 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -36,9 +34,9 @@ import javax.persistence.Transient;
 @Table(name="caches")
 public class CacheConfig implements Serializable {
 	
-	@SequenceGenerator(name="CACHE_SEQ", sequenceName="caches_id_seq")
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="CACHE_SEQ")
+	
 	@Id
+	@GeneratedValue
 	private Long id;
 	private String name ="";
 	private String path = "";

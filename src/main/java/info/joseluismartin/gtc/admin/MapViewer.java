@@ -77,6 +77,10 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 	private ListSelect srs = new ListSelect("srs");
 	
 
+	public MapViewer() {
+		
+	}
+	
 	/**
 	 * @param template
 	 */

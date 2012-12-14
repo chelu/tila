@@ -4,12 +4,12 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</property>
-		<property name="hibernate.dialect">org.hibernate.dialect.DerbyDialect</property>
+		<property name="hibernate.dialect">dialect.SQLiteDialect</property>
 		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
 		<property name="hibernate.show_sql">true</property>
 		<property name="hibernate.cache.region.factory_class">net.sf.ehcache.hibernate.EhCacheRegionFactory</property>
-		<property name="hibernate.cache.use_second_level_cache">true</property>
-		<property name="hibernate.cache.use_query_cache">true</property>
+		<property name="hibernate.cache.use_second_level_cache">false</property>
+		<property name="hibernate.cache.use_query_cache">false</property>
 		
 		<mapping class="info.joseluismartin.gtc.model.CacheConfig"/>
 		<mapping class="info.joseluismartin.gtc.model.ProxyConfig" />

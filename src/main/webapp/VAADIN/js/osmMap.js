@@ -4,7 +4,6 @@
  }
  
 if (typeof Tila == "undefined" || !Tila) {
-    alert("tila defined");
     var Tila = {};
 }
 

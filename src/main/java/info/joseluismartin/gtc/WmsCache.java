@@ -17,6 +17,7 @@ package info.joseluismartin.gtc;
 
 import info.joseluismartin.gtc.model.CacheConfig;
 import info.joseluismartin.service.PersistentService;
+import info.joseluismartin.xml.XMLUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +33,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * TileCache for WMS servers
@@ -40,10 +44,16 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class WmsCache  extends AbstractTileCache {
 
-	static final Log log = LogFactory.getLog(WmsCache.class);
+	public static final String XLINK_NS = "http://www.w3.org/1999/xlink";
+	public static final String HREF_ATTRIBUTE = "href";
+	public static final String ONLINE_RESOURCE_ELEMENT = "OnlineResource";
+	private static final Log log = LogFactory.getLog(WmsCache.class);
 	protected static final String GET_CAPABILITIES = "GetCapabilities";
 	protected static final String GET_MAP = "GetMap";
 	protected static final String REQUEST = "REQUEST";
+	protected static final String GET_FEATURE_INFO = "GetFeatureInfo";
+	private String getMapUrl;
+	private String getFeatureInfoUrl;
 	@Resource
 	private PersistentService<CacheConfig, Integer> cacheService;
 	
@@ -79,13 +89,58 @@ public class WmsCache  extends AbstractTileCache {
 	public InputStream parseResponse(InputStream serverStream, String remoteUri, String localUri) throws IOException {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(remoteUri);
 		UriComponents remoteComponents = builder.build();
+		String localUrl = localUri + "/" + getPath();
 		
 		InputStream is = serverStream;
 		MultiValueMap<String, String> params = remoteComponents.getQueryParams();
 		
 		if (GET_CAPABILITIES.equals(params.getFirst(REQUEST))) {
 			String response = IOUtils.toString(serverStream);
-			response = response.replaceAll(getServerUrl(), localUri + "/" + getPath());
+			
+			Document doc = XMLUtils.newDocument(response);
+			
+			if (log.isDebugEnabled())
+				XMLUtils.prettyDocumentToString(doc);
+			
+			// Fix GetMapUrl
+			Element getMapElement = (Element) doc.getElementsByTagName(GET_MAP).item(0);
+			if (getMapElement != null) {
+				if (log.isDebugEnabled()) {
+					log.debug("Found GetMapUrl: " + this.getMapUrl);
+				}
+				
+				NodeList nl = getMapElement.getElementsByTagName(ONLINE_RESOURCE_ELEMENT);
+				if (nl.getLength() > 0) {
+					Element resource = (Element) nl.item(0);
+					if (resource.hasAttributeNS(XLINK_NS, HREF_ATTRIBUTE)) {
+						this.getMapUrl = resource.getAttributeNS(XLINK_NS, HREF_ATTRIBUTE).replace("?", "");
+						resource.setAttributeNS(XLINK_NS, HREF_ATTRIBUTE, localUrl);
+					}
+				}
+			}
+			
+			// Fix GetFeatureInfoUrl
+			Element getFeatureElement = (Element) doc.getElementsByTagName(GET_FEATURE_INFO).item(0);
+			if (getFeatureElement != null) {
+				if (log.isDebugEnabled()) {
+					log.debug("Found GetFeatureInfoUrl: " + this.getFeatureInfoUrl);
+				}
+
+				NodeList nl = getFeatureElement.getElementsByTagName(ONLINE_RESOURCE_ELEMENT);
+				if (nl.getLength() > 0) {
+					Element resource = (Element) nl.item(0);
+					if (resource.hasAttributeNS(XLINK_NS, HREF_ATTRIBUTE)) {
+						this.getFeatureInfoUrl = resource.getAttributeNS(XLINK_NS, HREF_ATTRIBUTE).replace("?", "");
+						resource.setAttributeNS(XLINK_NS, HREF_ATTRIBUTE, localUrl);
+					}
+				}
+			}
+			
+			response = XMLUtils.documentToString(doc);
+			response = response.replaceAll(getServerUrl(), localUrl);
+		//	response = "<?xml version='1.0' encoding='UTF-8'>" + response; 
+			
+			
 			is = IOUtils.toInputStream(response);
 		}
 		
@@ -151,5 +206,20 @@ public class WmsCache  extends AbstractTileCache {
 		
 		return sb.toString();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getServerUrl(String query) {
+		if (query.contains(GET_MAP))
+			return getMapUrl;
+		else if (query.contains(GET_FEATURE_INFO))
+			return getFeatureInfoUrl;
+		
+		return getServerUrl();
+	}
+	
+	
 	
 }

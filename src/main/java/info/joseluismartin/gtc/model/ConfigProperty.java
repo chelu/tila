@@ -19,9 +19,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
@@ -32,9 +30,9 @@ import javax.persistence.Table;
 @Table(name="config")
 public class ConfigProperty implements Serializable {
 
-	@GeneratedValue(generator="config_id_seq", strategy=GenerationType.SEQUENCE)
-	@SequenceGenerator(name="config_id_seq", sequenceName="config_id_seq")
+	
 	@Id
+	@GeneratedValue
 	private Integer id;
 	private String name;
 	private String value;

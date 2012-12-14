@@ -110,6 +110,9 @@ public class CacheController {
 		if (m.find()) {
 			cachePath = m.group(1);
 			query = pathHelper.decodeRequestString(req, m.group(2));
+			if (log.isDebugEnabled()) {
+				log.debug("received request: cachePath [" + cachePath + "] query [" + query + "]");
+			}
 		}
 
 		TileCache cache = cacheService.findCache(cachePath);
@@ -149,13 +152,12 @@ public class CacheController {
 	private void proxyConnection(HttpServletRequest req, HttpServletResponse resp, String requestString,
 			TileCache cache, String remoteUrlString, URL remoteUrl) throws IOException {
 		if (log.isDebugEnabled()) {
-			log.debug("Can't parse tile url [" + requestString +"], proxy to:" + remoteUrlString);
+			log.debug("Can't parse tile url [" + requestString +"], proxy to: " + remoteUrlString);
 		}
 		
 		URLConnection conn = getConnection(remoteUrl);
 		resp.setContentType(conn.getContentType());
-		resp.setContentLength(conn.getContentLength());
-		InputStream is = cache.parseResponse(conn.getInputStream(), remoteUrlString, getContextUrl(req) );
+		InputStream is = cache.parseResponse(conn.getInputStream(), remoteUrlString, getContextUrl(req));
 		IOUtils.copy(is, resp.getOutputStream());
 	
 	}
