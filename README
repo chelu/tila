@@ -9,14 +9,14 @@ by storing the tiles on your LAN.
 
 Tila is still on development but downloable versions are usable.
 
-For version 0.1.1 Tila support the folowing caches:
+For version 0.1.2 Tila support the folowing caches:
 
  - Google Maps 
  - Open Street Map
  - TMS  (OSGeo Tile Map Service) 
  - WMS  (OGC Web Map Service)
  - WMTS (OGC Web Map Tile Service)
- 
+ - Virtual Earth
  
 The management web application lets you to easily configure the tile caches.
 
@@ -27,18 +27,18 @@ The management web application lets you to easily configure the tile caches.
 Download de latest war file from the download area and deploy tila-version.war it 
 on your application server. (I'm only tested it on Tomcat 6). 
 
-The derby database is in WEB-INF/db by default to allow a quick start of using 
+The SQLite database is in WEB-INF/tila.db by default to allow a quick start of using 
 the cache server, but if you undeploy de application, all configuration data 
 will be lost.
 
-To change the database location, copy db directory to some path 
-on server and edit the file tomcat_root/webapps/tila-version/WEB-INF/jdbc.properties
-and change the value of   *path_to_db_directory* in property:
+To change the database location, copy tila.db  to some path 
+on server and edit the file ${tomcat_root}/webapps/tila-version/WEB-INF/jdbc.properties
+and change the value of   *path_to_tila_db* in property:
  
-jdbc.url = "jdbc:derby:/path_to_db_directory"
+jdbc.url = "jdbc:sqlite:/path_to_tila_db"
 
-Restart application and go to http://yourserver:8080/tila/admin 
-and set up the tile caches, proxy configuration and cache path in server filesystem.
+Restart application and go to http://yourserver:8080/tila/admin and set up the tile 
+caches, proxy configuration and cache path in server filesystem.
 
 
 Tila is open source licensed under Apache Software Foundation 2.0 License.
