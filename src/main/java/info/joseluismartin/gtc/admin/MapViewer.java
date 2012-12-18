@@ -150,6 +150,21 @@ public class MapViewer extends CustomLayout implements ListPaneAware, ValueChang
 			else if (WMS.equals(type)) {
 				addWmsMap(cache);
 			}
+			else if (VE.equals(type)) {
+				addVeMaps(cache);
+			}
+		}
+	}
+
+	/**
+	 * @param cache
+	 */
+	private void addVeMaps(CacheConfig cache) {
+		String script = getScript(VE_MAP_SCRIPT);
+		if (script != null) {
+			String url = getCacheUrl(cache);
+			script = script.replace("$cacheUrl", url);
+			getWindow().executeJavaScript(script);
 		}
 	}
 

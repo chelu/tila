@@ -15,8 +15,6 @@
  */
 package info.joseluismartin.gtc.admin;
 
-import net.sf.ehcache.util.SetWrapperList;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -34,18 +32,15 @@ import com.vaadin.ui.Window;
  */
 public class AdminApplication  extends Application  {
 	
-	private ApplicationContext ctx; 
-	private TilaGuiFactory guiFactory;
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void init() {
-		ctx = WebApplicationContextUtils.getWebApplicationContext(((WebApplicationContext) getContext())
+		ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(((WebApplicationContext) getContext())
 				.getHttpSession().getServletContext());
-		guiFactory = (TilaGuiFactory) ctx.getBean("guiFactory");
-		
+		TilaGuiFactory guiFactory = (TilaGuiFactory) ctx.getBean("guiFactory");
 		setTheme("tila");
 		Window mainWindow = new Window("Tila Administration");
 		CustomLayout cl = new CustomLayout("main");
