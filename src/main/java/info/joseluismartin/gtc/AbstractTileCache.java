@@ -80,6 +80,11 @@ public abstract class AbstractTileCache implements TileCache {
 	 * @throws IOException on write faliure
 	 */
 	public void storeTile(Tile tile) throws IOException {
+		if (tile.isEmpty()) {
+			log.info("Avoid to store empty tile on chache: " + tile.toString());
+			return;
+		}
+		
 		File file = new File(getCachePath(tile));
 		FileUtils.writeByteArrayToFile(file, tile.getImage());
 		tileMap.put(tile.getKey(), tile);
@@ -91,7 +96,14 @@ public abstract class AbstractTileCache implements TileCache {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.DAY_OF_YEAR, -age);
 		
-		return file.exists() && file.lastModified()  < calendar.getTimeInMillis();
+		if (!file.exists()) {
+			log.info("Tile not found in cache: [" + file.getAbsolutePath() + "]");
+		}
+		else {
+			log.info("Tile found in cache: [" + file.getAbsolutePath() + "]");
+		}
+		
+		return file.exists(); // && file.lastModified()  < calendar.getTimeInMillis();
 	}
 
 
@@ -102,7 +114,7 @@ public abstract class AbstractTileCache implements TileCache {
 	  {
 	    int x = tile.getX();
 	    int y = tile.getY();
-	    int zoom = tile.getZoom() + 2;
+	    int zoom = tile.getZoom();
 	    String type = tile.getType();
 	    String layer = tile.getLayer();
 	    
@@ -115,9 +127,11 @@ public abstract class AbstractTileCache implements TileCache {
 	    	path += File.separator + Integer.toHexString(layer.hashCode());
 	    }
 	    
-	    path += File.separator + zoom + File.separator + x / 1024 + 
-	    		File.separator + x % 1024 + File.separator + y / 1024 + 
-	    		File.separator + y % 1024 + ".png";
+	    path += File.separator + zoom + File.separator + x + File.separator + y + ".png"; 
+	    
+//	    path += File.separator + zoom + File.separator + x / 1024 + 
+//	    		File.separator + x % 1024 + File.separator + y / 1024 + 
+//	    		File.separator + y % 1024 + ".png";
 	    
 	    return path;
 	 }

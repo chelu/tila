@@ -28,7 +28,7 @@ var roadTypeOptions = {
 
 var sateliteTypeOptions = {
 		getTileUrl: function(coord, zoom) {
-			var url = tilaGoogleCacheUrl + "/kh/v=106&x=" + coord.x + "&y=" + coord.y + "&z=" + zoom;    	        
+			var url = tilaGoogleCacheUrl + "/kh/v=124&x=" + coord.x + "&y=" + coord.y + "&z=" + zoom;    	        
 			return url;
 		},
 		tileSize: new google.maps.Size(256, 256),

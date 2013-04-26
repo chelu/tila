@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -72,14 +73,13 @@ public class Tile {
 	 * @return key from tile data
 	 */
 	public int getKey() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((layer == null) ? 0 : layer.hashCode());
-		result = prime * result + x;
-		result = prime * result + y;
-		result = prime * result + zoom;
-		return result;
+		return new HashCodeBuilder(31, 99)
+			.append(layer)
+			.append(type)
+			.append(x)
+			.append(y)
+			.append(zoom)
+			.toHashCode();
 	}
 	
 	public String getFileExension() {

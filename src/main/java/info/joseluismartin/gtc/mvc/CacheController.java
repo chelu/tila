@@ -144,8 +144,14 @@ public class CacheController {
 				}
 				cache.storeTile(tile);   
 			}
-			resp.setContentType(tile.getMimeType());
-			resp.getOutputStream().write(tile.getImage());
+			// may be still empty
+			if (!tile.isEmpty()) {
+				resp.setContentType(tile.getMimeType());
+				resp.getOutputStream().write(tile.getImage());
+			}
+			else {
+				throw new ServletException("Cannot download tile: " + tile.toString());
+			}
 		}
 	}
 

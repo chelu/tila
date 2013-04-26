@@ -41,9 +41,9 @@ public class GoogleCache extends AbstractTileCache {
 	 */
 	protected Tile parseTile(String path) {
 		Tile tile = null;
-
+		
 		try {
-			String[] parts = path.split("/");
+			String[] parts = path.split("[/?]");
 			String type = parts[0];
 			Map<String, String> params = getParameterMap(parts[1]);
 			int x = Integer.parseInt(params.get("x"));
@@ -71,15 +71,14 @@ public class GoogleCache extends AbstractTileCache {
 	 * {@inheritDoc}
 	 */
 	public String getServerUrl(String query) {
-		String path = StringUtils.substringBefore(query, "/");
-		String server = path.equals("vt") ? "mt" : "khm";
+		String server = query.startsWith("vt") ? "mt" : "khm";
 		StringBuilder sb = new StringBuilder();
 		sb.append("http://");
 		sb.append(server);
 		sb.append(this.serverIndex++);
 		sb.append(".google.com");
 		
-		if (serverIndex > 2)
+		if (serverIndex > 1)
 			serverIndex = 0;
 		
 		return sb.toString();
